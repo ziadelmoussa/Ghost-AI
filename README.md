@@ -24,7 +24,7 @@ The application utilizes a decoupled architecture to separate the user interface
 ### Prerequisites
 - Node.js (v18.0 or higher) or Python (3.10 or higher)
 - PayPal Developer Sandbox Account 
-- OpenAI / Anthropic API Key
+- Gemini API Key
 
 ### Installation
 
