@@ -2,9 +2,9 @@ import { useState, useRef } from 'react';
 import { sendTaskRequest, sendCheckoutRequest, sendVoiceRequest } from '../services/api';
 import './ChatInterface.css'; 
 
-export default function ChatInterface() {
+export default function ChatInterface({ sessionId }) {
     const [messages, setMessages] = useState([
-        { role: 'ai', content: "Hello! I'm your Invisible Assistant. What errand can I handle for you today?", options: null }
+        { role: 'ai', content: `Session active (${sessionId}). What errand can I handle for you today?`, options: null }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -38,21 +38,22 @@ export default function ChatInterface() {
             mediaRecorder.current = new MediaRecorder(stream);
             audioChunks.current = [];
 
+            mediaRecorder.current.ondataavailable = (event) => {
+                if (event.data.size > 0) audioChunks.current.push(event.data);
+            };
+
             mediaRecorder.current.onstop = async () => {
                 const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
                 setIsLoading(true);
                 
-                // 1. Show a temporary loading placeholder
                 setMessages((prev) => [...prev, { role: 'user', content: "🎤 Transcribing audio..." }]);
 
                 try {
                     const data = await sendVoiceRequest(audioBlob);
                     
-                    // 2. Remove the placeholder and add the real transcription + AI response
                     setMessages((prev) => {
                         const newMessages = [...prev];
-                        newMessages.pop(); // Removes the "Transcribing audio..." placeholder
-                        
+                        newMessages.pop(); 
                         return [
                             ...newMessages,
                             { role: 'user', content: `🎤 ${data.transcription}` },
@@ -82,7 +83,6 @@ export default function ChatInterface() {
         if (mediaRecorder.current && mediaRecorder.current.state === "recording") {
             mediaRecorder.current.stop();
             setIsRecording(false);
-            // Stop the media tracks to turn off the red recording light in the browser tab
             mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
         }
     };
@@ -95,7 +95,7 @@ export default function ChatInterface() {
             const data = await sendCheckoutRequest(option.rate, option.name);
             const paymentMessage = { 
                 role: 'ai', 
-                content: `Great choice! Here is your payment link for ${data.item} ($${data.received_amount}): ${data.payment_link}` 
+                content: `Here is your secure checkout link for ${data.item} ($${data.received_amount}): ${data.payment_link}` 
             };
             setMessages((prev) => [...prev, paymentMessage]);
         } catch (error) {
@@ -120,17 +120,18 @@ export default function ChatInterface() {
                             )}
                             
                             {msg.options && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '14px' }}>
                                     {msg.options.map((opt) => (
                                         <button 
                                             key={opt.id} 
                                             onClick={() => handleCheckout(opt)}
-                                            style={{ padding: '10px', background: '#2d2d30', color: '#fff', border: '1px solid #444', borderRadius: '6px', cursor: 'pointer', textAlign: 'left', transition: '0.2s' }}
-                                            onMouseOver={(e) => e.target.style.borderColor = '#007bff'}
-                                            onMouseOut={(e) => e.target.style.borderColor = '#444'}
+                                            className="option-card-btn"
                                         >
-                                            <strong>{opt.name}</strong> - ${opt.rate} <br/>
-                                            <small style={{ color: '#aaa' }}>{opt.time}</small>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                                <strong>{opt.name}</strong>
+                                                <span style={{ color: '#2997ff', fontWeight: 600 }}>${opt.rate}</span>
+                                            </div>
+                                            <small style={{ color: '#86868b' }}>{opt.time}</small>
                                         </button>
                                     ))}
                                 </div>
@@ -146,7 +147,7 @@ export default function ChatInterface() {
                     type="text" 
                     value={input} 
                     onChange={(e) => setInput(e.target.value)} 
-                    placeholder="Type your errand here..." 
+                    placeholder="Type an errand or hold to talk..." 
                     className="chat-input"
                     disabled={isLoading || isRecording}
                 />
@@ -157,9 +158,9 @@ export default function ChatInterface() {
                     onMouseUp={stopRecording}
                     onMouseLeave={stopRecording}
                     className="btn-send"
-                    style={{ backgroundColor: isRecording ? '#dc3545' : '#6c757d', padding: '0 15px' }}
+                    style={{ backgroundColor: isRecording ? '#ff453a' : '#2c2c2e', color: isRecording ? '#fff' : '#f5f5f7' }}
                 >
-                    {isRecording ? '🎙️ Recording' : '🎤 Hold to Talk'}
+                    {isRecording ? '🎙️ Recording...' : '🎤 Hold to Talk'}
                 </button>
 
                 <button type="submit" disabled={isLoading || isRecording} className="btn-send">
