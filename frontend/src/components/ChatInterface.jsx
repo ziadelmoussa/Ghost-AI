@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { sendTaskRequest, sendCheckoutRequest } from '../services/api';
+import { useState, useRef } from 'react';
+import { sendTaskRequest, sendCheckoutRequest, sendVoiceRequest } from '../services/api';
 import './ChatInterface.css'; 
 
 export default function ChatInterface() {
@@ -8,6 +8,9 @@ export default function ChatInterface() {
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
+    const mediaRecorder = useRef(null);
+    const audioChunks = useRef([]);
 
     const handleSend = async (e) => {
         e.preventDefault();
@@ -20,11 +23,7 @@ export default function ChatInterface() {
 
         try {
             const data = await sendTaskRequest(userMessage.content);
-            const aiMessage = { 
-                role: 'ai', 
-                content: data.ai_response,
-                options: data.options // Capturing the mock suppliers
-            };
+            const aiMessage = { role: 'ai', content: data.ai_response, options: data.options };
             setMessages((prev) => [...prev, aiMessage]);
         } catch (error) {
             setMessages((prev) => [...prev, { role: 'ai', content: "Sorry, I encountered an error connecting to the server." }]);
@@ -33,9 +32,63 @@ export default function ChatInterface() {
         }
     };
 
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder.current = new MediaRecorder(stream);
+            audioChunks.current = [];
+
+            mediaRecorder.current.onstop = async () => {
+                const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
+                setIsLoading(true);
+                
+                // 1. Show a temporary loading placeholder
+                setMessages((prev) => [...prev, { role: 'user', content: "🎤 Transcribing audio..." }]);
+
+                try {
+                    const data = await sendVoiceRequest(audioBlob);
+                    
+                    // 2. Remove the placeholder and add the real transcription + AI response
+                    setMessages((prev) => {
+                        const newMessages = [...prev];
+                        newMessages.pop(); // Removes the "Transcribing audio..." placeholder
+                        
+                        return [
+                            ...newMessages,
+                            { role: 'user', content: `🎤 ${data.transcription}` },
+                            { role: 'ai', content: data.ai_response, options: data.options }
+                        ];
+                    });
+                } catch (error) {
+                    setMessages((prev) => {
+                        const newMessages = [...prev];
+                        newMessages.pop();
+                        return [...newMessages, { role: 'ai', content: "Failed to process audio." }];
+                    });
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            mediaRecorder.current.start();
+            setIsRecording(true);
+        } catch (err) {
+            console.error("Microphone access denied:", err);
+            alert("Please allow microphone access to use voice chat.");
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorder.current && mediaRecorder.current.state === "recording") {
+            mediaRecorder.current.stop();
+            setIsRecording(false);
+            // Stop the media tracks to turn off the red recording light in the browser tab
+            mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
+        }
+    };
+
     const handleCheckout = async (option) => {
         setIsLoading(true);
-        // Add a message showing the user's selection
         setMessages((prev) => [...prev, { role: 'user', content: `I choose ${option.name}` }]);
         
         try {
@@ -66,7 +119,6 @@ export default function ChatInterface() {
                                 msg.content
                             )}
                             
-                            {/* Render Dynamic Options if they exist */}
                             {msg.options && (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
                                     {msg.options.map((opt) => (
@@ -96,9 +148,21 @@ export default function ChatInterface() {
                     onChange={(e) => setInput(e.target.value)} 
                     placeholder="Type your errand here..." 
                     className="chat-input"
-                    disabled={isLoading}
+                    disabled={isLoading || isRecording}
                 />
-                <button type="submit" disabled={isLoading} className="btn-send">
+                
+                <button 
+                    type="button" 
+                    onMouseDown={startRecording} 
+                    onMouseUp={stopRecording}
+                    onMouseLeave={stopRecording}
+                    className="btn-send"
+                    style={{ backgroundColor: isRecording ? '#dc3545' : '#6c757d', padding: '0 15px' }}
+                >
+                    {isRecording ? '🎙️ Recording' : '🎤 Hold to Talk'}
+                </button>
+
+                <button type="submit" disabled={isLoading || isRecording} className="btn-send">
                     Send
                 </button>
             </form>
