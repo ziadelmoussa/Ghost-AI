@@ -1,0 +1,134 @@
+.chat-container {
+    max-width: 650px;
+    margin: 40px auto;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #1e1e1e;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+}
+
+.chat-window {
+    height: 450px;
+    overflow-y: auto;
+    background-color: #252526;
+    border: 1px solid #333;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.message-wrapper {
+    display: flex;
+    width: 100%;
+}
+
+.message-wrapper.user {
+    justify-content: flex-end;
+}
+
+.message-wrapper.ai {
+    justify-content: flex-start;
+}
+
+.message-bubble {
+    padding: 12px 18px;
+    border-radius: 20px;
+    max-width: 75%;
+    line-height: 1.5;
+    word-break: break-word;
+    font-size: 15px;
+}
+
+.message-bubble.user {
+    background-color: #007bff;
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+}
+
+.message-bubble.ai {
+    background-color: #3e3e42;
+    color: #e0e0e0;
+    border-bottom-left-radius: 4px;
+}
+
+.payment-link {
+    color: #4daafc;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.payment-link:hover {
+    color: #82c4ff;
+}
+
+.loading-text {
+    color: #888;
+    font-size: 14px;
+    font-style: italic;
+    margin-top: -8px;
+}
+
+.input-form {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 14px 16px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background-color: #2d2d30;
+    color: #ffffff;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.chat-input:focus {
+    border-color: #007bff;
+}
+
+.btn-send {
+    padding: 0 24px;
+    border-radius: 8px;
+    border: none;
+    background-color: #28a745;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-send:hover:not(:disabled) {
+    background-color: #218838;
+}
+
+.btn-send:disabled, .btn-paypal:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-paypal {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    background-color: #0070ba;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-paypal:hover:not(:disabled) {
+    background-color: #005ea6;
+}

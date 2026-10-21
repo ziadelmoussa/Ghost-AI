@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { sendTaskRequest, sendCheckoutRequest } from '../services/api';
+import './ChatInterface.css'; // Import the new styles here
 
 export default function ChatInterface() {
     const [messages, setMessages] = useState([
@@ -31,7 +32,6 @@ export default function ChatInterface() {
     const handleTestPayment = async () => {
         setIsLoading(true);
         try {
-            // Request a $50 checkout link from the Python backend
             const data = await sendCheckoutRequest(50.00);
             const paymentMessage = { 
                 role: 'ai', 
@@ -46,46 +46,39 @@ export default function ChatInterface() {
     };
 
     return (
-        <div style={{ maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-            <div style={{ height: '400px', overflowY: 'auto', border: '1px solid #ccc', padding: '20px', borderRadius: '8px', marginBottom: '10px' }}>
+        <div className="chat-container">
+            <div className="chat-window">
                 {messages.map((msg, index) => (
-                    <div key={index} style={{ textAlign: msg.role === 'user' ? 'right' : 'left', marginBottom: '10px' }}>
-                        <span style={{ 
-                            background: msg.role === 'user' ? '#007bff' : '#f1f1f1', 
-                            color: msg.role === 'user' ? '#fff' : '#000',
-                            padding: '8px 12px', 
-                            borderRadius: '16px', 
-                            display: 'inline-block',
-                            wordBreak: 'break-word'
-                        }}>
+                    <div key={index} className={`message-wrapper ${msg.role}`}>
+                        <div className={`message-bubble ${msg.role}`}>
                             {msg.content.includes('http') ? (
-                                <a href={msg.content.split(': ')[1]} target="_blank" rel="noopener noreferrer" style={{color: '#0056b3', textDecoration: 'underline'}}>
+                                <a href={msg.content.split(': ')[1]} target="_blank" rel="noopener noreferrer" className="payment-link">
                                     Click here to approve payment
                                 </a>
                             ) : (
                                 msg.content
                             )}
-                        </span>
+                        </div>
                     </div>
                 ))}
-                {isLoading && <div style={{ textAlign: 'left', color: '#666' }}>Processing...</div>}
+                {isLoading && <div className="loading-text">Assistant is working...</div>}
             </div>
 
-            <form onSubmit={handleSend} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+            <form onSubmit={handleSend} className="input-form">
                 <input 
                     type="text" 
                     value={input} 
                     onChange={(e) => setInput(e.target.value)} 
                     placeholder="Type your errand here..." 
-                    style={{ flex: 1, padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+                    className="chat-input"
                     disabled={isLoading}
                 />
-                <button type="submit" disabled={isLoading} style={{ padding: '10px 20px', borderRadius: '4px', border: 'none', background: '#28a745', color: '#fff', cursor: 'pointer' }}>
+                <button type="submit" disabled={isLoading} className="btn-send">
                     Send
                 </button>
             </form>
             
-            <button onClick={handleTestPayment} disabled={isLoading} style={{ width: '100%', padding: '10px', borderRadius: '4px', border: 'none', background: '#0070ba', color: '#fff', cursor: 'pointer', fontWeight: 'bold' }}>
+            <button onClick={handleTestPayment} disabled={isLoading} className="btn-paypal">
                 Test PayPal Checkout ($50)
             </button>
         </div>
