@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import ChatInterface from './components/ChatInterface';
 import Onboarding from './components/Onboarding';
-import './App.css'; // Ensure global resets are here if you have them
+import Layout from './components/Layout';
+import './App.css';
 
 function App() {
   const [sessionId, setSessionId] = useState(null);
@@ -11,12 +12,18 @@ function App() {
     setSessionId(mockSession);
   };
 
+  const handleLogout = () => {
+    setSessionId(null);
+  };
+
   return (
     <>
       {!sessionId ? (
         <Onboarding onLogin={handleDemoLogin} />
       ) : (
-        <ChatInterface sessionId={sessionId} />
+        <Layout onLogout={handleLogout}>
+          <ChatInterface sessionId={sessionId} />
+        </Layout>
       )}
     </>
   );
