@@ -22,7 +22,8 @@ export default function ChatInterface({ sessionId }) {
         setIsLoading(true);
 
         try {
-            const data = await sendTaskRequest(userMessage.content);
+            // UPDATED: Added sessionId here
+            const data = await sendTaskRequest(userMessage.content, sessionId);
             const aiMessage = { role: 'ai', content: data.ai_response, options: data.options };
             setMessages((prev) => [...prev, aiMessage]);
         } catch (error) {
@@ -49,7 +50,8 @@ export default function ChatInterface({ sessionId }) {
                 setMessages((prev) => [...prev, { role: 'user', content: "🎤 Transcribing audio..." }]);
 
                 try {
-                    const data = await sendVoiceRequest(audioBlob);
+                    // UPDATED: Added sessionId here
+                    const data = await sendVoiceRequest(audioBlob, sessionId);
                     
                     setMessages((prev) => {
                         const newMessages = [...prev];
@@ -92,7 +94,8 @@ export default function ChatInterface({ sessionId }) {
         setMessages((prev) => [...prev, { role: 'user', content: `I choose ${option.name}` }]);
         
         try {
-            const data = await sendCheckoutRequest(option.rate, option.name);
+            // UPDATED: Added sessionId here
+            const data = await sendCheckoutRequest(option.rate, option.name, sessionId);
             const paymentMessage = { 
                 role: 'ai', 
                 content: `Here is your secure checkout link for ${data.item} ($${data.received_amount}): ${data.payment_link}` 
