@@ -3,28 +3,32 @@
     height: 100vh;
     width: 100vw;
     overflow: hidden;
-    background-color: var(--bg-primary, #000000);
 }
 
-/* Bulletproof Sidebar Animation */
+/* Crystal Sidebar with Purple Glow */
 .sidebar {
     width: 280px;
-    background-color: var(--bg-secondary, #1d1d1f);
-    border-right: 1px solid var(--border-color, #333);
+    background: var(--crystal-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid var(--crystal-border);
+    box-shadow: var(--purple-glow);
     transition: width 0.3s ease, padding 0.3s ease;
     overflow: hidden;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
+    z-index: 5;
 }
 
 .sidebar.closed {
     width: 0;
     border-right: none;
+    box-shadow: none;
 }
 
 .sidebar-content {
-    width: 280px; /* Keeps contents from squishing during animation */
+    width: 280px;
     padding: 24px;
     box-sizing: border-box;
     display: flex;
@@ -43,19 +47,27 @@
     margin: 0;
     font-size: 20px;
     font-weight: 600;
-    color: var(--text-primary, #fff);
+    color: var(--text-primary);
 }
 
 .new-chat-btn {
     width: 100%;
     padding: 12px;
-    background-color: var(--bg-primary, #000);
-    border: 1px solid var(--border-color, #333);
-    color: var(--text-primary, #fff);
+    background: var(--crystal-bg);
+    border: 1px solid var(--crystal-border);
+    color: var(--text-primary);
     border-radius: 12px;
     font-size: 15px;
+    font-weight: 500;
     cursor: pointer;
     margin-bottom: 20px;
+    transition: all 0.2s;
+    box-shadow: var(--purple-glow);
+}
+
+.new-chat-btn:hover {
+    background: var(--crystal-bg-hover);
+    border-color: var(--crystal-border-highlight);
 }
 
 .history-list {
@@ -73,16 +85,17 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    color: var(--text-primary, #fff);
+    color: var(--text-primary);
+    transition: background 0.2s;
 }
 
 .history-item:hover {
-    background-color: var(--bg-hover, #2c2c2e);
+    background: var(--crystal-bg-hover);
 }
 
 .history-date {
     font-size: 12px;
-    color: var(--text-secondary, #888);
+    color: var(--text-secondary);
 }
 
 .logout-btn {
@@ -90,19 +103,19 @@
     padding: 12px;
     background: none;
     border: none;
-    color: #ff453a;
+    color: #ef4444;
     font-weight: 600;
     cursor: pointer;
 }
 
-/* Main Content Area */
 .main-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-width: 0; /* Prevents flexbox blowout */
+    min-width: 0;
 }
 
+/* Crystal Header with Purple Glow */
 .top-header {
     height: 70px;
     min-height: 70px;
@@ -110,33 +123,54 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: var(--bg-secondary, #1d1d1f);
-    border-bottom: 1px solid var(--border-color, #333);
+    background: var(--crystal-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--crystal-border);
+    box-shadow: var(--purple-glow);
     z-index: 10;
 }
 
 .header-actions {
     display: flex;
     gap: 12px;
-    margin-left: auto; /* Pushes buttons to the far right */
+    margin-left: auto;
 }
 
+/* FIX: Restored the Pill Buttons */
 .pill-btn {
     padding: 8px 16px;
     border-radius: 980px;
-    border: 1px solid var(--border-color, #333);
-    background-color: var(--bg-primary, #000);
-    color: var(--text-primary, #fff);
+    border: 1px solid var(--crystal-border);
+    background: var(--crystal-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--text-primary);
     font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--purple-glow);
+    transition: all 0.2s ease;
+}
+
+.pill-btn:hover {
+    background: var(--crystal-bg-hover);
+    border-color: var(--crystal-border-highlight);
+    transform: translateY(-1px);
 }
 
 .icon-btn {
     background: none;
     border: none;
-    color: var(--text-primary, #fff);
+    color: var(--text-primary);
     font-size: 24px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .content-area {

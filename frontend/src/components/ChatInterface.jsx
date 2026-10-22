@@ -2,6 +2,13 @@ import { useState, useRef } from 'react';
 import { sendTaskRequest, sendCheckoutRequest, sendVoiceRequest } from '../services/api';
 import './ChatInterface.css'; 
 
+const SUGGESTIONS = [
+    { id: 1, icon: '🔧', text: 'Book a plumber for tomorrow morning' },
+    { id: 2, icon: '🛒', text: 'Order my weekly groceries' },
+    { id: 3, icon: '✈️', text: 'Find flights to New York for next weekend' },
+    { id: 4, icon: '💳', text: 'Pay my upcoming internet bill' }
+];
+
 export default function ChatInterface({ sessionId }) {
     const [messages, setMessages] = useState([
         { role: 'ai', content: `Session active (${sessionId}). What errand can I handle for you today?`, options: null }
@@ -13,7 +20,7 @@ export default function ChatInterface({ sessionId }) {
     const audioChunks = useRef([]);
 
     const handleSend = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         if (!input.trim()) return;
 
         const userMessage = { role: 'user', content: input };
@@ -22,7 +29,6 @@ export default function ChatInterface({ sessionId }) {
         setIsLoading(true);
 
         try {
-            // UPDATED: Added sessionId here
             const data = await sendTaskRequest(userMessage.content, sessionId);
             const aiMessage = { role: 'ai', content: data.ai_response, options: data.options };
             setMessages((prev) => [...prev, aiMessage]);
@@ -50,7 +56,6 @@ export default function ChatInterface({ sessionId }) {
                 setMessages((prev) => [...prev, { role: 'user', content: "🎤 Transcribing audio..." }]);
 
                 try {
-                    // UPDATED: Added sessionId here
                     const data = await sendVoiceRequest(audioBlob, sessionId);
                     
                     setMessages((prev) => {
@@ -94,7 +99,6 @@ export default function ChatInterface({ sessionId }) {
         setMessages((prev) => [...prev, { role: 'user', content: `I choose ${option.name}` }]);
         
         try {
-            // UPDATED: Added sessionId here
             const data = await sendCheckoutRequest(option.rate, option.name, sessionId);
             const paymentMessage = { 
                 role: 'ai', 
@@ -142,18 +146,50 @@ export default function ChatInterface({ sessionId }) {
                         </div>
                     </div>
                 ))}
+                
+                {/* Suggestions Grid */}
+                {messages.length === 1 && (
+                    <div className="suggestions-grid">
+                        {SUGGESTIONS.map((sugg) => (
+                            <button 
+                                key={sugg.id} 
+                                className="suggestion-card"
+                                onClick={() => setInput(sugg.text)}
+                            >
+                                <span className="suggestion-icon">{sugg.icon}</span>
+                                <span className="suggestion-text">{sugg.text}</span>
+                            </button>
+                        ))}
+                    </div>
+                )}
+
                 {isLoading && <div className="loading-text">Assistant is working...</div>}
             </div>
 
             <form onSubmit={handleSend} className="input-form">
-                <input 
-                    type="text" 
-                    value={input} 
-                    onChange={(e) => setInput(e.target.value)} 
-                    placeholder="Type an errand or hold to talk..." 
-                    className="chat-input"
-                    disabled={isLoading || isRecording}
-                />
+                
+                {/* Show normal input if NOT recording, show visualizer IF recording */}
+                {!isRecording ? (
+                    <input 
+                        type="text" 
+                        value={input} 
+                        onChange={(e) => setInput(e.target.value)} 
+                        placeholder="Type an errand or hold to talk..." 
+                        className="chat-input"
+                        disabled={isLoading}
+                    />
+                ) : (
+                    <div className="visualizer-container" style={{ flex: 1 }}>
+                        <div className="visualizer-bar"></div>
+                        <div className="visualizer-bar"></div>
+                        <div className="visualizer-bar"></div>
+                        <div className="visualizer-bar"></div>
+                        <div className="visualizer-bar"></div>
+                        <span style={{ marginLeft: '12px', fontSize: '14px', color: '#0071e3', fontWeight: 500 }}>
+                            Listening...
+                        </span>
+                    </div>
+                )}
                 
                 <button 
                     type="button" 
@@ -161,12 +197,21 @@ export default function ChatInterface({ sessionId }) {
                     onMouseUp={stopRecording}
                     onMouseLeave={stopRecording}
                     className="btn-send"
-                    style={{ backgroundColor: isRecording ? '#ff453a' : '#2c2c2e', color: isRecording ? '#fff' : '#f5f5f7' }}
+                    style={{ 
+                        backgroundColor: isRecording ? '#ff453a' : '#2c2c2e', 
+                        color: isRecording ? '#fff' : '#f5f5f7',
+                        width: '140px'
+                    }}
                 >
-                    {isRecording ? '🎙️ Recording...' : '🎤 Hold to Talk'}
+                    {isRecording ? 'Release to Send' : '🎤 Hold to Talk'}
                 </button>
 
-                <button type="submit" disabled={isLoading || isRecording} className="btn-send">
+                {/* Fix: Always render the Send button to prevent layout shifts, just disable it */}
+                <button 
+                    type="submit" 
+                    disabled={isLoading || isRecording || !input.trim()} 
+                    className="btn-send"
+                >
                     Send
                 </button>
             </form>

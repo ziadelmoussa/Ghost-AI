@@ -2,83 +2,74 @@
     max-width: 800px;
     width: 100%;
     margin: 0 auto;
-    flex: 1; /* Forces it to fill vertical space */
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+    flex: 1;
     background-color: transparent;
     padding: 24px;
-    color: var(--text-primary, #f5f5f7);
+    color: var(--text-primary);
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
 }
 
-/* Chat Window Area */
+/* Crystal Chat Box with Large Purple Glow */
 .chat-window {
     flex: 1;
     overflow-y: auto;
-    background-color: #161618;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--crystal-bg);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--crystal-border);
+    box-shadow: var(--purple-glow-strong);
     padding: 24px;
-    border-radius: 20px;
+    border-radius: 24px;
     margin-bottom: 20px;
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
-.message-wrapper {
-    display: flex;
-    width: 100%;
-}
+.message-wrapper { display: flex; width: 100%; }
+.message-wrapper.user { justify-content: flex-end; }
+.message-wrapper.ai { justify-content: flex-start; }
 
-.message-wrapper.user {
-    justify-content: flex-end;
-}
-
-.message-wrapper.ai {
-    justify-content: flex-start;
-}
-
-/* Apple Message Bubbles */
 .message-bubble {
     padding: 14px 18px;
     border-radius: 18px;
     max-width: 75%;
     line-height: 1.5;
     font-size: 15px;
-    letter-spacing: -0.01em;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .message-bubble.user {
-    background-color: #0071e3; /* Apple Blue */
+    background-color: var(--accent-color);
     color: #ffffff;
     border-bottom-right-radius: 6px;
 }
 
 .message-bubble.ai {
-    background-color: #2c2c2e;
-    color: #f5f5f7;
+    background: var(--crystal-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--text-primary);
+    border: 1px solid var(--crystal-border);
     border-bottom-left-radius: 6px;
 }
 
 .payment-link {
-    color: #2997ff;
+    color: var(--accent-color);
     text-decoration: underline;
     font-weight: 500;
 }
 
-.payment-link:hover {
-    color: #70b5ff;
-}
-
 .loading-text {
-    color: #86868b;
+    color: var(--text-secondary);
     font-size: 14px;
     font-style: italic;
     padding-left: 4px;
 }
 
-/* Input Form Layout */
+/* Crystal Input Form */
 .input-form {
     display: flex;
     gap: 12px;
@@ -88,48 +79,94 @@
     flex: 1;
     padding: 16px 20px;
     border-radius: 980px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background-color: #1d1d1f;
-    color: #ffffff;
+    border: 1px solid var(--crystal-border);
+    background: var(--crystal-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: var(--text-primary);
     font-size: 15px;
     outline: none;
-    transition: border-color 0.2s ease;
+    transition: all 0.2s ease;
+    box-shadow: var(--purple-glow);
 }
 
 .chat-input:focus {
-    border-color: #0071e3;
+    border-color: var(--crystal-border-highlight);
+    background: var(--crystal-bg-hover);
 }
 
-/* Apple Pill Buttons */
+/* Solid Purple Send Button (Always Visible) */
 .btn-send {
     padding: 0 24px;
     border-radius: 980px;
     border: none;
-    background-color: #f5f5f7;
-    color: #000000;
+    background-color: var(--accent-color);
+    color: #ffffff;
     font-weight: 600;
     font-size: 14px;
     cursor: pointer;
-    transition: transform 0.2s ease, background-color 0.2s ease;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    box-shadow: var(--purple-glow);
 }
 
 .btn-send:hover:not(:disabled) {
-    background-color: #ffffff;
     transform: scale(1.02);
+    opacity: 0.9;
 }
 
 .btn-send:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+    box-shadow: none;
 }
 
-/* Dynamic Option Cards styling */
+/* Crystal Suggestion Cards */
+.suggestions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 40px;
+    padding: 0 20px;
+    animation: slideUpFade 0.6s ease-out forwards;
+}
+
+@keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.suggestion-card {
+    background: var(--crystal-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--crystal-border);
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: var(--purple-glow);
+}
+
+.suggestion-card:hover {
+    border-color: var(--crystal-border-highlight);
+    transform: translateY(-2px);
+    background: var(--crystal-bg-hover);
+}
+
+.suggestion-icon { font-size: 24px; }
+.suggestion-text { font-size: 14px; color: var(--text-primary); font-weight: 500; }
+
+/* Dynamic Option Cards */
 .option-card-btn {
     width: 100%;
     padding: 14px 16px;
-    background: #1d1d1f;
-    color: #f5f5f7;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--crystal-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--crystal-border);
     border-radius: 12px;
     cursor: pointer;
     text-align: left;
@@ -137,6 +174,47 @@
 }
 
 .option-card-btn:hover {
-    border-color: #0071e3;
-    background: #252528;
+    border-color: var(--crystal-border-highlight);
+    background: var(--crystal-bg-hover);
 }
+
+/* Purple Siri-Style Voice Visualizer */
+.visualizer-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    height: 48px;
+    padding: 0 20px;
+    background: var(--crystal-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 980px;
+    border: 1px solid var(--crystal-border);
+    animation: pulsePurpleGlow 1.5s infinite alternate;
+}
+
+@keyframes pulsePurpleGlow {
+    from { box-shadow: 0 0 10px rgba(170, 59, 255, 0.3); }
+    to { box-shadow: 0 0 25px rgba(170, 59, 255, 0.8); }
+}
+
+.visualizer-bar {
+    width: 4px;
+    background-color: var(--accent-color);
+    border-radius: 4px;
+    animation: wave 1.2s ease-in-out infinite;
+}
+
+.visualizer-bar:nth-child(1) { height: 12px; animation-delay: 0.0s; }
+.visualizer-bar:nth-child(2) { height: 24px; animation-delay: 0.2s; }
+.visualizer-bar:nth-child(3) { height: 16px; animation-delay: 0.4s; }
+.visualizer-bar:nth-child(4) { height: 32px; animation-delay: 0.1s; }
+.visualizer-bar:nth-child(5) { height: 20px; animation-delay: 0.3s; }
+
+@keyframes wave {
+    0%, 100% { transform: scaleY(0.5); opacity: 0.5; }
+    50% { transform: scaleY(1); opacity: 1; }
+}
+
+.hidden { display: none !important; }
