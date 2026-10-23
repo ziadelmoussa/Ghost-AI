@@ -53,6 +53,16 @@ class VoiceAIResponseSchema(BaseModel):
 # In-memory dictionary to act as our mock database for active sessions
 sessions_db = {}
 
+# --- THE HACKATHON "BRAIN" ---
+# Edit this right before your demo to whatever errands you plan to speak!
+USER_CONTEXT = """
+User Profile:
+- Name: Ziad
+- Location: Dammam, Saudi Arabia
+- Current Grocery List: Almarai Milk, Eggs, Bread, Arabic Coffee.
+- Today's Schedule: Hackathon at 6 PM, need to fix the kitchen sink.
+- Preferences: Always look for the cheapest and fastest option.
+"""
 
 @app.post("/api/process-task")
 def process_task(request: TaskRequest):
@@ -64,24 +74,27 @@ def process_task(request: TaskRequest):
     sessions_db[request.session_id]["history"].append({"role": "user", "content": request.user_prompt})
 
     try:
-        # Initialize Gemini Model with System Instructions
+        # Initialize Gemini Model with Context Injection
         model = genai.GenerativeModel(
             model_name="gemini-3.8-flash",
             system_instruction=(
                 "You are 'The Invisible Assistant', an ultra-efficient, autonomous AI concierge. "
-                "The user will give you an errand (e.g., 'book a plumber', 'order groceries'). "
-                "Analyze the request, generate a brief, professional confirmation, and provide 2 to 3 realistic options "
-                "that fulfill their request with estimated prices and timeframes."
+                "You have access to the user's personal context and schedule. "
+                f"USER CONTEXT: {USER_CONTEXT} "
+                "Analyze the request using this context. Generate a brief, professional confirmation, "
+                "and provide 2 realistic options that fulfill their request with estimated prices and timeframes. "
+                "Keep your conversational response under 2 sentences to ensure high speed."
             )
         )
 
-        # Call Gemini and enforce the JSON schema
+        # Call Gemini and enforce the JSON schema with speed optimizations
         response = model.generate_content(
             request.user_prompt,
             generation_config=genai.GenerationConfig(
                 response_mime_type="application/json",
                 response_schema=AIResponseSchema,
-                temperature=0.4 # Lower temperature for more factual, structured outputs
+                temperature=0.2, # Lowered for speed and strict formatting
+                max_output_tokens=200 # Forces brevity and cuts latency
             )
         )
 
@@ -109,7 +122,7 @@ async def process_voice_task(
     session_id: str = Form(...) 
 ):
     try:
-        # 1. Read the audio bytes directly into memory (No temp files needed!)
+        # 1. Read the audio bytes directly into memory
         audio_bytes = await audio_file.read()
 
         # 2. Package the raw audio inline for Gemini
@@ -118,25 +131,29 @@ async def process_voice_task(
             "data": audio_bytes
         }
 
-        # 3. Set up the model
+        # 3. Set up the model with Context Injection
         model = genai.GenerativeModel(
             model_name="gemini-3.8-flash",
             system_instruction=(
                 "You are 'The Invisible Assistant', an autonomous AI concierge. "
+                "You have access to the user's personal context and schedule. "
+                f"USER CONTEXT: {USER_CONTEXT} "
                 "The user is speaking an errand to you. "
                 "First, transcribe their audio accurately. "
-                "Second, analyze the request, generate a brief, professional confirmation, "
-                "and provide 2 to 3 realistic options that fulfill their request with estimated prices and timeframes."
+                "Second, analyze the request using their context. Generate a brief, professional confirmation, "
+                "and provide 2 realistic options that fulfill their request with estimated prices and timeframes. "
+                "Keep your conversational response under 2 sentences to ensure high speed."
             )
         )
 
-        # 4. Pass the inline audio directly to the prompt
+        # 4. Pass the inline audio directly to the prompt with speed optimizations
         response = model.generate_content(
             [audio_part, "Transcribe this audio and process the errand."],
             generation_config=genai.GenerationConfig(
                 response_mime_type="application/json",
                 response_schema=VoiceAIResponseSchema,
-                temperature=0.4
+                temperature=0.2, # Lowered for speed and strict formatting
+                max_output_tokens=200 # Forces brevity and cuts latency
             )
         )
 
