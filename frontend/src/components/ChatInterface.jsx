@@ -2,21 +2,52 @@ import { useState, useRef, useEffect } from 'react';
 import { sendTaskRequest, sendCheckoutRequest, sendVoiceRequest } from '../services/api';
 import './ChatInterface.css'; 
 
-const SUGGESTIONS = [
-    { id: 1, icon: '🔧', text: 'Book a plumber for tomorrow morning' },
-    { id: 2, icon: '🛒', text: 'Order my weekly groceries' },
-    { id: 3, icon: '✈️', text: 'Find flights to New York for next weekend' },
-    { id: 4, icon: '💳', text: 'Pay my upcoming internet bill' }
-];
-
-// Added initialMessages and onMessagesChange to props
-export default function ChatInterface({ sessionId, updateChatTitle, initialMessages, onMessagesChange }) {
+// Added language to the props!
+export default function ChatInterface({ sessionId, updateChatTitle, initialMessages, onMessagesChange, language = 'EN' }) {
     
-    // 1. If Layout hands us saved messages, use them! Otherwise, show the default greeting.
+    // --- TRANSLATIONS ---
+    const textUI = {
+        EN: {
+            greeting: `Session active (${sessionId}). What errand can I handle for you today?`,
+            placeholder: "Type an errand or hold to talk...",
+            loading: "Assistant is working...",
+            listening: "Listening...",
+            holdToTalk: "🎤 Hold to Talk",
+            releaseToSend: "Release to Send",
+            send: "Send",
+            error: "Sorry, I encountered an error connecting to the server."
+        },
+        AR: {
+            greeting: `الجلسة نشطة (${sessionId}). ما هي المهمة التي يمكنني إنجازها لك اليوم؟`,
+            placeholder: "اكتب مهمتك أو اضغط للتحدث...",
+            loading: "المساعد يعمل...",
+            listening: "يستمع...",
+            holdToTalk: "🎤 اضغط للتحدث",
+            releaseToSend: "افلت للإرسال",
+            send: "إرسال",
+            error: "عذراً، حدث خطأ في الاتصال بالخادم."
+        }
+    };
+
+    const suggestionsUI = {
+        EN: [
+            { id: 1, icon: '🔧', text: 'Book a plumber for tomorrow morning' },
+            { id: 2, icon: '🛒', text: 'Order my weekly groceries' },
+            { id: 3, icon: '✈️', text: 'Find flights to New York for next weekend' },
+            { id: 4, icon: '💳', text: 'Pay my upcoming internet bill' }
+        ],
+        AR: [
+            { id: 1, icon: '🔧', text: 'احجز سباكاً لصباح الغد' },
+            { id: 2, icon: '🛒', text: 'اطلب بقالة الأسبوع' },
+            { id: 3, icon: '✈️', text: 'ابحث عن رحلات إلى نيويورك' },
+            { id: 4, icon: '💳', text: 'ادفع فاتورة الإنترنت القادمة' }
+        ]
+    };
+
     const [messages, setMessages] = useState(
         initialMessages && initialMessages.length > 0 
             ? initialMessages 
-            : [{ role: 'ai', content: `Session active (${sessionId}). What errand can I handle for you today?`, options: null }]
+            : [{ role: 'ai', content: textUI[language].greeting, options: null }]
     );
     
     const [input, setInput] = useState('');
@@ -25,7 +56,6 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
     const mediaRecorder = useRef(null);
     const audioChunks = useRef([]);
 
-    // 2. MAGIC TRICK: Every time the 'messages' change on screen, silently send them to Layout.jsx to save!
     useEffect(() => {
         if (onMessagesChange) {
             onMessagesChange(messages);
@@ -56,7 +86,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
             const aiMessage = { role: 'ai', content: data.ai_response, options: data.options };
             setMessages((prev) => [...prev, aiMessage]);
         } catch (error) {
-            setMessages((prev) => [...prev, { role: 'ai', content: "Sorry, I encountered an error connecting to the server." }]);
+            setMessages((prev) => [...prev, { role: 'ai', content: textUI[language].error }]);
         } finally {
             setIsLoading(false);
         }
@@ -76,7 +106,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
                 const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
                 setIsLoading(true);
                 
-                setMessages((prev) => [...prev, { role: 'user', content: "🎤 Transcribing audio..." }]);
+                setMessages((prev) => [...prev, { role: 'user', content: "🎤 ..." }]);
 
                 try {
                     const data = await sendVoiceRequest(audioBlob, sessionId);
@@ -98,7 +128,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
                     setMessages((prev) => {
                         const newMessages = [...prev];
                         newMessages.pop();
-                        return [...newMessages, { role: 'ai', content: "Failed to process audio." }];
+                        return [...newMessages, { role: 'ai', content: textUI[language].error }];
                     });
                 } finally {
                     setIsLoading(false);
@@ -123,13 +153,13 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
 
     const handleCheckout = async (option) => {
         setIsLoading(true);
-        setMessages((prev) => [...prev, { role: 'user', content: `I choose ${option.name}` }]);
+        setMessages((prev) => [...prev, { role: 'user', content: option.name }]);
         
         try {
             const data = await sendCheckoutRequest(option.rate, option.name, sessionId);
             const paymentMessage = { 
                 role: 'ai', 
-                content: `Here is your secure checkout link for ${data.item} ($${data.received_amount}): ${data.payment_link}` 
+                content: `Checkout / الدفع: ${data.item} ($${data.received_amount}): ${data.payment_link}` 
             };
             setMessages((prev) => [...prev, paymentMessage]);
         } catch (error) {
@@ -146,8 +176,8 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
                     <div key={index} className={`message-wrapper ${msg.role}`}>
                         <div className={`message-bubble ${msg.role}`}>
                             {msg.content.includes('http') ? (
-                                <a href={msg.content.split(': ')[1]} target="_blank" rel="noopener noreferrer" className="payment-link">
-                                    Click here to approve payment
+                                <a href={msg.content.split(': ')[1] || msg.content.split('http')[1]} target="_blank" rel="noopener noreferrer" className="payment-link">
+                                    {language === 'AR' ? 'اضغط هنا لإتمام الدفع' : 'Click here to approve payment'}
                                 </a>
                             ) : (
                                 msg.content
@@ -176,7 +206,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
                 
                 {messages.length === 1 && (
                     <div className="suggestions-grid">
-                        {SUGGESTIONS.map((sugg) => (
+                        {suggestionsUI[language].map((sugg) => (
                             <button 
                                 key={sugg.id} 
                                 className="suggestion-card"
@@ -189,7 +219,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
                     </div>
                 )}
 
-                {isLoading && <div className="loading-text">Assistant is working...</div>}
+                {isLoading && <div className="loading-text">{textUI[language].loading}</div>}
             </div>
 
             <form onSubmit={handleSend} className="input-form">
@@ -198,7 +228,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
                         type="text" 
                         value={input} 
                         onChange={(e) => setInput(e.target.value)} 
-                        placeholder="Type an errand or hold to talk..." 
+                        placeholder={textUI[language].placeholder} 
                         className="chat-input"
                         disabled={isLoading}
                     />
@@ -210,7 +240,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
                         <div className="visualizer-bar"></div>
                         <div className="visualizer-bar"></div>
                         <span style={{ marginLeft: '12px', fontSize: '14px', color: '#0071e3', fontWeight: 500 }}>
-                            Listening...
+                            {textUI[language].listening}
                         </span>
                     </div>
                 )}
@@ -227,7 +257,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
                         width: '140px'
                     }}
                 >
-                    {isRecording ? 'Release to Send' : '🎤 Hold to Talk'}
+                    {isRecording ? textUI[language].releaseToSend : textUI[language].holdToTalk}
                 </button>
 
                 <button 
@@ -235,7 +265,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
                     disabled={isLoading || isRecording || !input.trim()} 
                     className="btn-send"
                 >
-                    Send
+                    {textUI[language].send}
                 </button>
             </form>
         </div>

@@ -90,7 +90,8 @@ export default function Layout({ children, onLogout }) {
             return React.cloneElement(child, { 
                 updateChatTitle,
                 initialMessages: activeSession?.messages, // Pass down saved history
-                onMessagesChange: saveMessagesToSession  // Pass down the save function
+                onMessagesChange: saveMessagesToSession,  // Pass down the save function
+                language: language // <-- ADDED THIS RIGHT HERE!
             });
         }
         return child;
