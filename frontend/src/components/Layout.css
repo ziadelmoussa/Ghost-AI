@@ -3,34 +3,28 @@
     height: 100vh;
     width: 100vw;
     overflow: hidden;
+    background: var(--bg-app);
 }
 
-/* Crystal Sidebar with Purple Glow */
+/* Apple Native-style Sidebar */
 .sidebar {
     width: 280px;
-    background: var(--crystal-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-right: 1px solid var(--crystal-border);
-    box-shadow: var(--purple-glow);
-    transition: width 0.3s ease, padding 0.3s ease;
-    overflow: hidden;
-    flex-shrink: 0;
+    background: var(--surface-bg);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border-right: 1px solid var(--border-color);
+    transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     display: flex;
     flex-direction: column;
     z-index: 5;
+    overflow: hidden;
 }
 
-.sidebar.closed {
-    width: 0;
-    border-right: none;
-    box-shadow: none;
-}
+.sidebar.closed { width: 0; border-right: none; }
 
 .sidebar-content {
     width: 280px;
-    padding: 24px;
-    box-sizing: border-box;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -43,172 +37,88 @@
     margin-bottom: 24px;
 }
 
-.sidebar-header h2 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--text-primary);
-}
+.sidebar-header h2 { margin: 0; font-size: 18px; font-weight: 600; color: var(--text-primary); }
 
 .new-chat-btn {
     width: 100%;
     padding: 12px;
-    background: var(--crystal-bg);
-    border: 1px solid var(--crystal-border);
+    background: var(--surface-hover);
+    border: 1px solid var(--border-color);
     color: var(--text-primary);
     border-radius: 12px;
     font-size: 15px;
     font-weight: 500;
     cursor: pointer;
-    margin-bottom: 20px;
-    transition: all 0.2s;
-    box-shadow: var(--purple-glow);
+    margin-bottom: 24px;
+    transition: all 0.2s ease;
 }
-
-.new-chat-btn:hover {
-    background: var(--crystal-bg-hover);
-    border-color: var(--crystal-border-highlight);
-}
+.new-chat-btn:hover { background: var(--border-color); transform: scale(1.02); }
 
 .history-list {
     flex: 1;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 }
+.history-list::-webkit-scrollbar { width: 4px; }
+.history-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
-/* --- RESTORED CLEAN HISTORY ITEM --- */
+/* Clean Apple History Item */
 .history-item {
-    padding: 12px;
-    border-radius: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
     cursor: pointer;
     display: flex;
-    justify-content: space-between; /* Pushes the X to the right */
-    align-items: center;
-    color: var(--text-primary);
-    transition: background 0.2s;
-}
-
-.history-item.active {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-left: 3px solid #b266ff;
-}
-
-.history-item:hover {
-    background: var(--crystal-bg-hover);
-}
-
-.history-title {
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.history-date {
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin-top: 4px;
-}
-
-.delete-icon-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 14px;
-    cursor: pointer;
-    opacity: 0; /* Hidden by default */
-    transition: opacity 0.2s, color 0.2s;
-    padding: 4px;
-}
-
-.history-item:hover .delete-icon-btn {
-    opacity: 0.5; /* Fades in when hovering over the chat */
-}
-
-.delete-icon-btn:hover {
-    opacity: 1 !important;
-    color: #ef4444; /* Turns red when hovering directly over the X */
-}
-/* ----------------------------------- */
-
-.logout-btn {
-    width: 100%;
-    padding: 12px;
-    background: none;
-    border: none;
-    color: #ef4444;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
-.top-header {
-    height: 70px;
-    min-height: 70px;
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
     justify-content: space-between;
-    background: var(--crystal-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--crystal-border);
-    box-shadow: var(--purple-glow);
-    z-index: 10;
-}
-
-.header-actions {
-    display: flex;
-    gap: 12px;
-    margin-left: auto;
-}
-
-.pill-btn {
-    padding: 8px 16px;
-    border-radius: 980px;
-    border: 1px solid var(--crystal-border);
-    background: var(--crystal-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    color: var(--text-primary);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
     align-items: center;
-    justify-content: center;
-    box-shadow: var(--purple-glow);
+    color: var(--text-primary);
     transition: all 0.2s ease;
 }
 
-.pill-btn:hover {
-    background: var(--crystal-bg-hover);
-    border-color: var(--crystal-border-highlight);
-    transform: translateY(-1px);
+/* macOS Finder Style Active State */
+.history-item.active { background: var(--accent-color); color: #ffffff; }
+.history-item.active .history-date { color: rgba(255, 255, 255, 0.8); }
+.history-item:hover:not(.active) { background: var(--surface-hover); }
+
+.history-title { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-date { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+/* Smart Delete Icon */
+.delete-icon-btn {
+    background: transparent; border: none; color: var(--text-secondary); font-size: 14px;
+    cursor: pointer; opacity: 0; padding: 4px; transition: all 0.2s;
+}
+.history-item:hover .delete-icon-btn { opacity: 0.7; }
+.history-item.active:hover .delete-icon-btn { color: #ffffff; opacity: 1; }
+.delete-icon-btn:hover { opacity: 1 !important; color: #ff3b30 !important; transform: scale(1.2); }
+
+.logout-btn { 
+    width: 100%; padding: 12px; background: none; border: none; color: #ff3b30; 
+    font-weight: 600; cursor: pointer; border-radius: 10px; transition: background 0.2s; 
+}
+.logout-btn:hover { background: rgba(255, 59, 48, 0.1); }
+
+/* Main Area - Floating Header */
+.main-content { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+.top-header {
+    height: 70px; min-height: 70px; padding: 0 24px; display: flex; align-items: center;
+    justify-content: space-between; background: transparent; z-index: 10;
 }
 
-.icon-btn {
-    background: none;
-    border: none;
-    color: var(--text-primary);
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+.header-actions { display: flex; gap: 12px; margin-left: auto; }
 
-.content-area {
-    flex: 1;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
+/* WWDC Style Floating Pills */
+.pill-btn {
+    padding: 8px 16px; border-radius: 980px; border: 1px solid var(--border-color);
+    background: var(--surface-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    color: var(--text-primary); font-size: 14px; font-weight: 500; cursor: pointer;
+    box-shadow: var(--apple-shadow-light); transition: all 0.2s ease;
 }
+.pill-btn:hover { background: var(--surface-hover); transform: translateY(-1px); box-shadow: var(--apple-shadow); }
+
+.icon-btn { background: none; border: none; color: var(--text-primary); font-size: 20px; cursor: pointer; transition: transform 0.2s; }
+.icon-btn:hover { transform: scale(1.1); }
+
+.content-area { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }

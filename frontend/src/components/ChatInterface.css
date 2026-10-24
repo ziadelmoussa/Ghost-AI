@@ -1,220 +1,283 @@
+/* --- CHAT CONTAINER --- */
 .chat-container {
-    max-width: 800px;
-    width: 100%;
-    margin: 0 auto;
-    flex: 1;
-    background-color: transparent;
-    padding: 24px;
-    color: var(--text-primary);
     display: flex;
     flex-direction: column;
-    box-sizing: border-box;
+    height: 100%;
+    position: relative;
+    padding: 0 20px;
 }
 
-/* Crystal Chat Box with Large Purple Glow */
 .chat-window {
     flex: 1;
     overflow-y: auto;
-    background: var(--crystal-bg);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--crystal-border);
-    box-shadow: var(--purple-glow-strong);
-    padding: 24px;
-    border-radius: 24px;
-    margin-bottom: 20px;
+    padding: 24px 0;
     display: flex;
     flex-direction: column;
     gap: 16px;
+    scroll-behavior: smooth;
 }
 
-.message-wrapper { display: flex; width: 100%; }
+/* --- MESSAGE BUBBLES --- */
+.message-wrapper {
+    display: flex;
+    width: 100%;
+    margin-bottom: 8px;
+    animation: fadeIn 0.3s ease-out;
+}
+
 .message-wrapper.user { justify-content: flex-end; }
 .message-wrapper.ai { justify-content: flex-start; }
 
 .message-bubble {
-    padding: 14px 18px;
-    border-radius: 18px;
     max-width: 75%;
-    line-height: 1.5;
+    padding: 12px 18px;
     font-size: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    line-height: 1.5;
+    word-wrap: break-word;
 }
 
+/* User Bubble: Apple Blue */
 .message-bubble.user {
-    background-color: var(--accent-color);
-    color: #ffffff;
-    border-bottom-right-radius: 6px;
+    background: linear-gradient(135deg, #007aff, #0056d6);
+    color: white;
+    border-radius: 18px 18px 4px 18px;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
 }
 
+/* AI Bubble: WWDC Premium Surface (FIXED!) */
 .message-bubble.ai {
-    background: var(--crystal-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: var(--surface-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
     color: var(--text-primary);
-    border: 1px solid var(--crystal-border);
-    border-bottom-left-radius: 6px;
+    border-radius: 18px 18px 18px 4px;
+    box-shadow: var(--apple-shadow-light);
 }
 
-.payment-link {
-    color: var(--accent-color);
-    text-decoration: underline;
-    font-weight: 500;
+/* --- OPTION CARDS --- */
+.option-card-btn {
+    background: var(--surface-hover);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: var(--text-primary);
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.loading-text {
-    color: var(--text-secondary);
+.option-card-btn:hover {
+    transform: scale(1.02);
+    border-color: var(--accent-color);
+}
+
+/* --- SUGGESTIONS GRID (Clean 2x2 Apple Grid) --- */
+.suggestions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Forces exact 2x2 layout */
+    gap: 16px;
+    margin-top: 24px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.suggestion-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s, background 0.2s;
+    color: white;
+    text-align: left;
+    height: 110px;
+    justify-content: space-between;
+    font-family: inherit; /* Inherits the global Apple font */
+}
+
+/* Matching your exact color gradients with native font consistency */
+.suggestion-card:nth-child(1) { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%); color: #1d1d1f; }
+.suggestion-card:nth-child(2) { background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%); color: #1d1d1f; }
+.suggestion-card:nth-child(3) { background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%); color: #1d1d1f; }
+.suggestion-card:nth-child(4) { background: linear-gradient(120deg, #fccb90 0%, #d57eeb 100%); color: #1d1d1f; }
+
+.suggestion-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.suggestion-icon {
+    font-size: 20px;
+    background: rgba(255, 255, 255, 0.35);
+    padding: 6px;
+    border-radius: 10px;
+}
+
+.suggestion-text {
     font-size: 14px;
-    font-style: italic;
-    padding-left: 4px;
+    font-weight: 600;
+    line-height: 1.3;
+    font-family: inherit; /* Forces global font inside cards */
 }
 
-/* Crystal Input Form */
+/* --- INPUT FORM (FIXED!) --- */
 .input-form {
     display: flex;
-    gap: 12px;
+    gap: 10px;
+    padding: 12px;
+    background: var(--surface-bg);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid var(--border-color);
+    border-radius: 980px; 
+    margin-bottom: 24px;
+    box-shadow: var(--apple-shadow-light);
+    align-items: center;
 }
 
 .chat-input {
     flex: 1;
-    padding: 16px 20px;
-    border-radius: 980px;
-    border: 1px solid var(--crystal-border);
-    background: var(--crystal-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    color: var(--text-primary);
-    font-size: 15px;
-    outline: none;
-    transition: all 0.2s ease;
-    box-shadow: var(--purple-glow);
-}
-
-.chat-input:focus {
-    border-color: var(--crystal-border-highlight);
-    background: var(--crystal-bg-hover);
-}
-
-/* Solid Purple Send Button (Always Visible) */
-.btn-send {
-    padding: 0 24px;
-    border-radius: 980px;
+    background: transparent;
     border: none;
-    background-color: var(--accent-color);
-    color: #ffffff;
-    font-weight: 600;
+    padding: 10px 16px;
+    font-size: 15px;
+    color: var(--text-primary);
+    outline: none;
+}
+
+.chat-input::placeholder { color: var(--text-secondary); }
+
+/* Send & Record Buttons */
+.btn-send {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 980px;
+    padding: 10px 20px;
     font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s ease, opacity 0.2s ease;
-    box-shadow: var(--purple-glow);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
 .btn-send:hover:not(:disabled) {
-    transform: scale(1.02);
-    opacity: 0.9;
+    background: #0056d6;
+    transform: scale(1.05);
 }
 
 .btn-send:disabled {
-    opacity: 0.4;
+    opacity: 0.5;
     cursor: not-allowed;
-    box-shadow: none;
 }
 
-/* Crystal Suggestion Cards */
-.suggestions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
-    margin-top: 40px;
-    padding: 0 20px;
-    animation: slideUpFade 0.6s ease-out forwards;
+.payment-link {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 4px;
+}
+.payment-link:hover { text-decoration: underline; }
+
+.loading-text {
+    align-self: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 10px;
+    animation: pulse 1.5s infinite;
 }
 
-@keyframes slideUpFade {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.suggestion-card {
-    background: var(--crystal-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--crystal-border);
-    border-radius: 16px;
-    padding: 20px;
-    cursor: pointer;
-    text-align: left;
-    transition: all 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    box-shadow: var(--purple-glow);
-}
-
-.suggestion-card:hover {
-    border-color: var(--crystal-border-highlight);
-    transform: translateY(-2px);
-    background: var(--crystal-bg-hover);
-}
-
-.suggestion-icon { font-size: 24px; }
-.suggestion-text { font-size: 14px; color: var(--text-primary); font-weight: 500; }
-
-/* Dynamic Option Cards */
-.option-card-btn {
-    width: 100%;
-    padding: 14px 16px;
-    background: var(--crystal-bg);
-    color: var(--text-primary);
-    border: 1px solid var(--crystal-border);
-    border-radius: 12px;
-    cursor: pointer;
-    text-align: left;
-    transition: all 0.2s ease;
-}
-
-.option-card-btn:hover {
-    border-color: var(--crystal-border-highlight);
-    background: var(--crystal-bg-hover);
-}
-
-/* Purple Siri-Style Voice Visualizer */
 .visualizer-container {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 4px;
-    height: 48px;
-    padding: 0 20px;
-    background: var(--crystal-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: 980px;
-    border: 1px solid var(--crystal-border);
-    animation: pulsePurpleGlow 1.5s infinite alternate;
+    height: 40px;
 }
-
-@keyframes pulsePurpleGlow {
-    from { box-shadow: 0 0 10px rgba(170, 59, 255, 0.3); }
-    to { box-shadow: 0 0 25px rgba(170, 59, 255, 0.8); }
-}
-
 .visualizer-bar {
     width: 4px;
+    height: 10px;
     background-color: var(--accent-color);
     border-radius: 4px;
-    animation: wave 1.2s ease-in-out infinite;
+    animation: bounce 0.5s infinite alternate;
+}
+.visualizer-bar:nth-child(2) { animation-delay: 0.1s; }
+.visualizer-bar:nth-child(3) { animation-delay: 0.2s; }
+.visualizer-bar:nth-child(4) { animation-delay: 0.3s; }
+.visualizer-bar:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+@keyframes bounce { from { height: 10px; } to { height: 24px; } }
+
+/* --- RICH PAYMENT CARD (Apple Wallet Style) --- */
+.payment-card {
+    margin-top: 14px;
+    background: var(--bg-app); 
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 300px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.visualizer-bar:nth-child(1) { height: 12px; animation-delay: 0.0s; }
-.visualizer-bar:nth-child(2) { height: 24px; animation-delay: 0.2s; }
-.visualizer-bar:nth-child(3) { height: 16px; animation-delay: 0.4s; }
-.visualizer-bar:nth-child(4) { height: 32px; animation-delay: 0.1s; }
-.visualizer-bar:nth-child(5) { height: 20px; animation-delay: 0.3s; }
-
-@keyframes wave {
-    0%, 100% { transform: scaleY(0.5); opacity: 0.5; }
-    50% { transform: scaleY(1); opacity: 1; }
+.payment-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 122, 255, 0.1);
+    color: var(--accent-color);
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.hidden { display: none !important; }
+.payment-card-body {
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.payment-item-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.payment-item-price {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.btn-pay-now {
+    display: block;
+    margin: 0 14px 14px;
+    background: var(--accent-color);
+    color: white;
+    text-align: center;
+    padding: 12px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.2s;
+}
+
+.btn-pay-now:hover {
+    background: #0056d6;
+    transform: scale(1.03);
+}

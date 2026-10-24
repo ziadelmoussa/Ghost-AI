@@ -6,14 +6,13 @@ export default function Layout({ children, onLogout }) {
     const [language, setLanguage] = useState('EN');
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-    // 1. Added a "messages" array to the sessions to act as our in-memory database!
     const [sessions, setSessions] = useState([
         { 
             id: 1, 
             title: "Booked QuickFix Plumbing", 
             date: "Today", 
             messages: [
-                { role: 'ai', content: 'Session active (1). What errand can I handle for you today?', options: null },
+                { role: 'ai', content: "Hello, I'm Ghost. What can I do for you today?", options: null },
                 { role: 'user', content: 'Book a plumber for tomorrow morning' },
                 { role: 'ai', content: 'I have found 2 options for you.', options: [{id: 1, name: 'QuickFix Plumbing', rate: 45, time: 'Tomorrow 9am'}] }
             ] 
@@ -23,7 +22,7 @@ export default function Layout({ children, onLogout }) {
             title: "Ordered Groceries", 
             date: "Yesterday", 
             messages: [
-                { role: 'ai', content: 'Session active (2). What errand can I handle for you today?', options: null },
+                { role: 'ai', content: "Hello, I'm Ghost. What can I do for you today?", options: null },
                 { role: 'user', content: 'Order my weekly groceries from Almarai' },
                 { role: 'ai', content: 'I found your usual list. Processing options...', options: null }
             ] 
@@ -46,7 +45,6 @@ export default function Layout({ children, onLogout }) {
 
     const handleNewErrand = () => {
         const newId = Date.now();
-        // Start new sessions with an empty messages array
         const newSession = { id: newId, title: "New Errand", date: "Just now", messages: [] };
         setSessions([newSession, ...sessions]);
         setActiveSessionId(newId);
@@ -56,7 +54,7 @@ export default function Layout({ children, onLogout }) {
     const switchChat = (id) => {
         if (activeSessionId !== id) {
             setActiveSessionId(id);
-            setChatKey(prev => prev + 1); // This remounts the chat window to load the new messages!
+            setChatKey(prev => prev + 1); 
         }
     };
 
@@ -74,24 +72,21 @@ export default function Layout({ children, onLogout }) {
         );
     };
 
-    // 2. This function listens for new messages from the ChatInterface and saves them
     const saveMessagesToSession = (newMessages) => {
         setSessions(prevSessions => 
             prevSessions.map(s => s.id === activeSessionId ? { ...s, messages: newMessages } : s)
         );
     };
 
-    // 3. Find the currently active session so we can pass its messages down
     const activeSession = sessions.find(s => s.id === activeSessionId) || sessions[0];
 
-    // Inject our new tools into the ChatInterface
     const childrenWithProps = React.Children.map(children, child => {
         if (React.isValidElement(child)) {
             return React.cloneElement(child, { 
                 updateChatTitle,
-                initialMessages: activeSession?.messages, // Pass down saved history
-                onMessagesChange: saveMessagesToSession,  // Pass down the save function
-                language: language // <-- ADDED THIS RIGHT HERE!
+                initialMessages: activeSession?.messages, 
+                onMessagesChange: saveMessagesToSession,  
+                language: language 
             });
         }
         return child;
