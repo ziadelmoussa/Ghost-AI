@@ -78,25 +78,60 @@
     gap: 8px;
 }
 
+/* --- RESTORED CLEAN HISTORY ITEM --- */
 .history-item {
     padding: 12px;
     border-radius: 8px;
     cursor: pointer;
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    justify-content: space-between; /* Pushes the X to the right */
+    align-items: center;
     color: var(--text-primary);
     transition: background 0.2s;
+}
+
+.history-item.active {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-left: 3px solid #b266ff;
 }
 
 .history-item:hover {
     background: var(--crystal-bg-hover);
 }
 
+.history-title {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .history-date {
     font-size: 12px;
     color: var(--text-secondary);
+    margin-top: 4px;
 }
+
+.delete-icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.2s, color 0.2s;
+    padding: 4px;
+}
+
+.history-item:hover .delete-icon-btn {
+    opacity: 0.5; /* Fades in when hovering over the chat */
+}
+
+.delete-icon-btn:hover {
+    opacity: 1 !important;
+    color: #ef4444; /* Turns red when hovering directly over the X */
+}
+/* ----------------------------------- */
 
 .logout-btn {
     width: 100%;
@@ -115,7 +150,6 @@
     min-width: 0;
 }
 
-/* Crystal Header with Purple Glow */
 .top-header {
     height: 70px;
     min-height: 70px;
@@ -137,7 +171,6 @@
     margin-left: auto;
 }
 
-/* FIX: Restored the Pill Buttons */
 .pill-btn {
     padding: 8px 16px;
     border-radius: 980px;

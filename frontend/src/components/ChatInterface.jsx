@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { sendTaskRequest, sendCheckoutRequest, sendVoiceRequest } from '../services/api';
 import './ChatInterface.css'; 
 
@@ -9,15 +9,33 @@ const SUGGESTIONS = [
     { id: 4, icon: '💳', text: 'Pay my upcoming internet bill' }
 ];
 
-export default function ChatInterface({ sessionId }) {
-    const [messages, setMessages] = useState([
-        { role: 'ai', content: `Session active (${sessionId}). What errand can I handle for you today?`, options: null }
-    ]);
+// Added initialMessages and onMessagesChange to props
+export default function ChatInterface({ sessionId, updateChatTitle, initialMessages, onMessagesChange }) {
+    
+    // 1. If Layout hands us saved messages, use them! Otherwise, show the default greeting.
+    const [messages, setMessages] = useState(
+        initialMessages && initialMessages.length > 0 
+            ? initialMessages 
+            : [{ role: 'ai', content: `Session active (${sessionId}). What errand can I handle for you today?`, options: null }]
+    );
+    
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
     const mediaRecorder = useRef(null);
     const audioChunks = useRef([]);
+
+    // 2. MAGIC TRICK: Every time the 'messages' change on screen, silently send them to Layout.jsx to save!
+    useEffect(() => {
+        if (onMessagesChange) {
+            onMessagesChange(messages);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [messages]);
+
+    const formatTitle = (text) => {
+        return text.length > 22 ? text.substring(0, 22) + '...' : text;
+    };
 
     const handleSend = async (e) => {
         if (e) e.preventDefault();
@@ -25,6 +43,11 @@ export default function ChatInterface({ sessionId }) {
 
         const userMessage = { role: 'user', content: input };
         setMessages((prev) => [...prev, userMessage]);
+        
+        if (updateChatTitle) {
+            updateChatTitle(formatTitle(input));
+        }
+
         setInput('');
         setIsLoading(true);
 
@@ -57,6 +80,10 @@ export default function ChatInterface({ sessionId }) {
 
                 try {
                     const data = await sendVoiceRequest(audioBlob, sessionId);
+                    
+                    if (updateChatTitle && data.transcription) {
+                        updateChatTitle(formatTitle(data.transcription));
+                    }
                     
                     setMessages((prev) => {
                         const newMessages = [...prev];
@@ -147,7 +174,6 @@ export default function ChatInterface({ sessionId }) {
                     </div>
                 ))}
                 
-                {/* Suggestions Grid */}
                 {messages.length === 1 && (
                     <div className="suggestions-grid">
                         {SUGGESTIONS.map((sugg) => (
@@ -167,8 +193,6 @@ export default function ChatInterface({ sessionId }) {
             </div>
 
             <form onSubmit={handleSend} className="input-form">
-                
-                {/* Show normal input if NOT recording, show visualizer IF recording */}
                 {!isRecording ? (
                     <input 
                         type="text" 
@@ -206,7 +230,6 @@ export default function ChatInterface({ sessionId }) {
                     {isRecording ? 'Release to Send' : '🎤 Hold to Talk'}
                 </button>
 
-                {/* Fix: Always render the Send button to prevent layout shifts, just disable it */}
                 <button 
                     type="submit" 
                     disabled={isLoading || isRecording || !input.trim()} 
