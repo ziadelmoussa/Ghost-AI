@@ -4,11 +4,10 @@ import google.generativeai as genai
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import List, Optional
 from dotenv import load_dotenv
+from fastapi.responses import HTMLResponse
 
 load_dotenv()
-# from ai_engine import process_user_errand
 from payments import create_paypal_order
 
 # Configure Gemini
@@ -50,11 +49,11 @@ class VoiceAIResponseSchema(BaseModel):
     ai_response: str = Field(description="The conversational text response to the user.")
     options: list[TaskOption] = Field(description="Up to 3 selectable options for the user to purchase or book.")
 
-# In-memory dictionary to act as our mock database for active sessions
+# In-memory dictionaries to act as our mock databases
 sessions_db = {}
+payment_statuses = {} # Added to track real-time PayPal checkout statuses
 
 # --- THE HACKATHON "BRAIN" ---
-# Edit this right before your demo to whatever errands you plan to speak!
 USER_CONTEXT = """
 User Profile:
 - Name: Ziad
@@ -66,17 +65,14 @@ User Profile:
 
 @app.post("/api/process-task")
 def process_task(request: TaskRequest):
-    # Register session if it doesn't exist
     if request.session_id not in sessions_db:
         sessions_db[request.session_id] = {"history": []}
     
-    # Log the user's prompt into their specific session history
     sessions_db[request.session_id]["history"].append({"role": "user", "content": request.user_prompt})
 
     try:
-        # Initialize Gemini Model with Context Injection
         model = genai.GenerativeModel(
-            model_name="gemini-3.8-flash",
+            model_name="gemini-1.5-flash", # Fixed model name
             system_instruction=(
                 "You are 'The Invisible Assistant', an ultra-efficient, autonomous AI concierge. "
                 "You have access to the user's personal context and schedule. "
@@ -87,21 +83,17 @@ def process_task(request: TaskRequest):
             )
         )
 
-        # Call Gemini and enforce the JSON schema with speed optimizations
         response = model.generate_content(
             request.user_prompt,
             generation_config=genai.GenerationConfig(
                 response_mime_type="application/json",
                 response_schema=AIResponseSchema,
-                temperature=0.2, # Lowered for speed and strict formatting
-                max_output_tokens=200 # Forces brevity and cuts latency
+                temperature=0.2, 
+                max_output_tokens=200 
             )
         )
 
-        # Parse the JSON string returned by Gemini into a Python dictionary
         ai_data = json.loads(response.text)
-
-        # Log AI response to history
         sessions_db[request.session_id]["history"].append({"role": "ai", "content": ai_data["ai_response"]})
 
         return {
@@ -122,18 +114,14 @@ async def process_voice_task(
     session_id: str = Form(...) 
 ):
     try:
-        # 1. Read the audio bytes directly into memory
         audio_bytes = await audio_file.read()
-
-        # 2. Package the raw audio inline for Gemini
         audio_part = {
             "mime_type": "audio/webm",
             "data": audio_bytes
         }
 
-        # 3. Set up the model with Context Injection
         model = genai.GenerativeModel(
-            model_name="gemini-3.8-flash",
+            model_name="gemini-1.5-flash", # Fixed model name
             system_instruction=(
                 "You are 'The Invisible Assistant', an autonomous AI concierge. "
                 "You have access to the user's personal context and schedule. "
@@ -146,18 +134,16 @@ async def process_voice_task(
             )
         )
 
-        # 4. Pass the inline audio directly to the prompt with speed optimizations
         response = model.generate_content(
             [audio_part, "Transcribe this audio and process the errand."],
             generation_config=genai.GenerationConfig(
                 response_mime_type="application/json",
                 response_schema=VoiceAIResponseSchema,
-                temperature=0.2, # Lowered for speed and strict formatting
-                max_output_tokens=200 # Forces brevity and cuts latency
+                temperature=0.2, 
+                max_output_tokens=200 
             )
         )
 
-        # 5. Parse and return the real data to the React UI
         ai_data = json.loads(response.text)
 
         if session_id not in sessions_db:
@@ -183,8 +169,11 @@ async def process_voice_task(
 def create_checkout(request: CheckoutRequest):
     try:
         payment_info = create_paypal_order(amount=str(request.cart_total))
+        order_id = payment_info["order_data"]["id"]
         
-        # Log the checkout action to the user's session
+        # Log the order ID into memory so React can poll for its status
+        payment_statuses[order_id] = "pending"
+        
         if request.session_id in sessions_db:
             sessions_db[request.session_id]["history"].append({"role": "system", "content": f"Checkout initiated for {request.item_name}"})
 
@@ -194,7 +183,64 @@ def create_checkout(request: CheckoutRequest):
             "session_id": request.session_id,
             "received_amount": request.cart_total, 
             "payment_link": payment_info["approval_link"],
-            "order_id": payment_info["order_data"]["id"]
+            "order_id": order_id
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"PayPal Error: {str(e)}")
+
+# --- NEW ENDPOINTS FOR PAYPAL POLLING ---
+@app.get("/payment/success", response_class=HTMLResponse)
+async def payment_success(token: str):
+    """PayPal redirects the user here after they approve the payment."""
+    payment_statuses[token] = "paid"
+    
+    # Return a beautiful, Apple-style dark mode success screen
+    html_content = """
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <title>Payment Successful</title>
+            <style>
+                body { 
+                    background-color: #000; 
+                    color: #fff; 
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+                    display: flex; 
+                    justify-content: center; 
+                    align-items: center; 
+                    height: 100vh; 
+                    margin: 0; 
+                }
+                .container { text-align: center; }
+                .check-icon { 
+                    color: #34c759; /* Apple Success Green */
+                    font-size: 56px; 
+                    margin-bottom: 16px; 
+                }
+                h1 { font-size: 24px; font-weight: 600; margin: 0 0 8px 0; letter-spacing: -0.5px; }
+                p { color: #86868b; font-size: 15px; margin: 0; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="check-icon">✓</div>
+                <h1>Payment Successful</h1>
+                <p>You can securely close this tab and return to Ghost.</p>
+                
+                <!-- Auto-close the tab after 3.5 seconds -->
+                <script>
+                    setTimeout(() => {
+                        window.close();
+                    }, 3500);
+                </script>
+            </div>
+        </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content, status_code=200)
+
+@app.get("/payment/status/{order_id}")
+async def check_payment_status(order_id: str):
+    """React calls this every 2 seconds to check if the user paid."""
+    status = payment_statuses.get(order_id, "pending")
+    return {"status": status}

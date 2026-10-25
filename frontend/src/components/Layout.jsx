@@ -6,6 +6,7 @@ export default function Layout({ children, onLogout }) {
     const [language, setLanguage] = useState('EN');
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+    // --- EXPANDED MOCK SESSIONS ---
     const [sessions, setSessions] = useState([
         { 
             id: 1, 
@@ -14,7 +15,10 @@ export default function Layout({ children, onLogout }) {
             messages: [
                 { role: 'ai', content: "Hello, I'm Ghost. What can I do for you today?", options: null },
                 { role: 'user', content: 'Book a plumber for tomorrow morning' },
-                { role: 'ai', content: 'I have found 2 options for you.', options: [{id: 1, name: 'QuickFix Plumbing', rate: 45, time: 'Tomorrow 9am'}] }
+                { role: 'ai', content: 'I have found 2 options for you.', options: [
+                    { id: 1, name: 'QuickFix Plumbing', rate: 45, time: 'Tomorrow 9:00 AM' },
+                    { id: 2, name: 'Elite Pipe Masters', rate: 60, time: 'Tomorrow 10:30 AM' }
+                ]}
             ] 
         },
         { 
@@ -23,11 +27,45 @@ export default function Layout({ children, onLogout }) {
             date: "Yesterday", 
             messages: [
                 { role: 'ai', content: "Hello, I'm Ghost. What can I do for you today?", options: null },
-                { role: 'user', content: 'Order my weekly groceries from Almarai' },
-                { role: 'ai', content: 'I found your usual list. Processing options...', options: null }
+                { role: 'user', content: 'Order my weekly groceries' },
+                { role: 'ai', content: 'I found your usual list from Almarai. Processing your order now...', options: null },
+                { role: 'ai', content: 'Your groceries have been ordered and will be delivered by 5:00 PM today.', options: null }
             ] 
         },
+        {
+            id: 3,
+            title: "NYC Flights",
+            date: "Last Week",
+            messages: [
+                { role: 'ai', content: "Hello, I'm Ghost. What can I do for you today?", options: null },
+                { role: 'user', content: 'Find flights to New York for next weekend' },
+                { role: 'ai', content: 'I found 2 direct flights to JFK leaving this Friday. Which one works best?', options: [
+                    { id: 3, name: 'Delta Airlines', rate: 350, time: 'Friday 6:00 PM (Direct)' },
+                    { id: 4, name: 'JetBlue Airways', rate: 290, time: 'Friday 8:30 PM (Direct)' }
+                ]}
+            ]
+        },
+        {
+            id: 4,
+            title: "Paid Internet Bill",
+            date: "Last Month",
+            messages: [
+                { role: 'ai', content: "Hello, I'm Ghost. What can I do for you today?", options: null },
+                { role: 'user', content: 'Pay my upcoming internet bill' },
+                { 
+                    role: 'ai', 
+                    content: 'I have prepared your secure invoice.', 
+                    paymentDetails: { 
+                        item: 'Monthly Internet Bill', 
+                        amount: 85.00, 
+                        link: '#', 
+                        status: 'paid' 
+                    } 
+                }
+            ]
+        }
     ]);
+    
     const [activeSessionId, setActiveSessionId] = useState(1);
     const [chatKey, setChatKey] = useState(0);
 

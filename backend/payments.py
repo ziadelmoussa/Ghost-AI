@@ -1,10 +1,10 @@
-import os 
+import os
 import requests
-from requests.auth import HTTPBasicAuth 
+from requests.auth import HTTPBasicAuth
 
 PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID", "mock_client_id")
 PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET", "mock_client_secret")
-PAYPAL_API_BASE = os.getenv("PAYPAL_API_BASE", "https://api-m.sandbox.paypal.com") 
+PAYPAL_API_BASE = os.getenv("PAYPAL_API_BASE", "https://api-m.sandbox.paypal.com")
 
 def get_paypal_access_token():
     url = f"{PAYPAL_API_BASE}/v1/oauth2/token"
@@ -40,7 +40,12 @@ def create_paypal_order(amount: str, currency: str = "USD"):
                     "value": str(amount)
                 }
             }
-        ]
+        ],
+        # THIS IS THE FIX: Telling PayPal where to redirect after payment
+        "application_context": {
+            "return_url": "http://localhost:8000/payment/success",
+            "cancel_url": "http://localhost:8000/payment/cancel"
+        }
     }
 
     response = requests.post(url, headers=headers, json=payload)
@@ -50,6 +55,5 @@ def create_paypal_order(amount: str, currency: str = "USD"):
         approval_link = next((link["href"] for link in order_data.get("links", []) if link["rel"] == "approve"), None)
         return {"order_data": order_data, "approval_link": approval_link}
     raise Exception(f"Failed to create PayPal order: {response.text}")
-
     
     

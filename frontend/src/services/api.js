@@ -47,3 +47,15 @@ export const sendVoiceRequest = async (audioBlob, sessionId) => {
         throw error;
     }
 };
+
+export const checkPaymentStatus = async (orderId) => {
+    try {
+        // Adjust the URL if your FastAPI runs on a different port
+        const response = await fetch(`http://localhost:8000/payment/status/${orderId}`);
+        const data = await response.json();
+        return data.status; 
+    } catch (error) {
+        console.error("Error checking status:", error);
+        return "pending";
+    }
+};
