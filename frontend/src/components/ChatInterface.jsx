@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { sendTaskRequest, sendCheckoutRequest, sendVoiceRequest, checkPaymentStatus } from '../services/api';
 import './ChatInterface.css'; 
 
+
 const MicIcon = () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
@@ -23,6 +24,8 @@ const CheckIcon = () => (
     </svg>
 );
 
+
+
 const WrenchIcon = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>;
 const CartIcon = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>;
 const PlaneIcon = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.9c-.2.5 0 1.1.4 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.8 5.2c.3.4.9.6 1.3.4l.9-.3c.4-.2.6-.6.5-1.1z"/></svg>;
@@ -30,10 +33,27 @@ const CreditCardIcon = () => <svg width="22" height="22" viewBox="0 0 24 24" fil
 
 const GhostLogo = () => (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px' }}>
-        <svg width="64" height="64" viewBox="0 0 512 512" fill="none" style={{ filter: 'drop-shadow(0 0 16px rgba(255, 255, 255, 0.15))', marginBottom: '12px' }}>
-            <path d="M256 32C150 32 64 118 64 224V416C64 432.657 77.3431 446 94 446C102.214 446 109.954 442.743 115.542 436.958L156.49 394.996C166.273 384.975 181.727 384.975 191.51 394.996L230.98 435.539C241.365 446.223 258.635 446.223 269.02 435.539L308.49 394.996C318.273 384.975 333.727 384.975 343.51 394.996L384.458 436.958C390.046 442.743 397.786 446 406 446C422.657 446 436 432.657 436 416V224C436 118 350 32 256 32Z" fill="none" stroke="#FFFFFF" strokeWidth="36" strokeLinecap="round" strokeLinejoin="round"/>
-            <ellipse cx="192" cy="208" rx="28" ry="36" fill="#FFFFFF" />
-            <ellipse cx="320" cy="208" rx="28" ry="36" fill="#FFFFFF" />
+        <svg 
+            width="64" 
+            height="64" 
+            viewBox="0 0 512 512" 
+            fill="none" 
+            style={{ 
+                filter: 'drop-shadow(0 0 16px rgba(128, 128, 128, 0.15))', 
+                marginBottom: '12px',
+                color: 'var(--text-primary)' 
+            }}
+        >
+            <path 
+                d="M256 32C150 32 64 118 64 224V416C64 432.657 77.3431 446 94 446C102.214 446 109.954 442.743 115.542 436.958L156.49 394.996C166.273 384.975 181.727 384.975 191.51 394.996L230.98 435.539C241.365 446.223 258.635 446.223 269.02 435.539L308.49 394.996C318.273 384.975 333.727 384.975 343.51 394.996L384.458 436.958C390.046 442.743 397.786 446 406 446C422.657 446 436 432.657 436 416V224C436 118 350 32 256 32Z" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="36" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+            />
+            <ellipse cx="192" cy="208" rx="28" ry="36" fill="currentColor" />
+            <ellipse cx="320" cy="208" rx="28" ry="36" fill="currentColor" />
         </svg>
         <h2 style={{ fontSize: '22px', fontWeight: 600, margin: 0, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>Ghost AI</h2>
     </div>
