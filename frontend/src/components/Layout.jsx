@@ -1,72 +1,117 @@
 import React, { useState, useEffect } from 'react';
 import './Layout.css';
 
+// Helper to instantly generate a fresh, empty session
+const generateEmptySession = () => ({
+    id: Date.now(),
+    title: "New Errand",
+    date: "Just now",
+    messages: []
+});
+
 export default function Layout({ children, onLogout }) {
     const [theme, setTheme] = useState('dark');
     const [language, setLanguage] = useState('EN');
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-    // --- EXPANDED MOCK SESSIONS ---
-    const [sessions, setSessions] = useState([
-        { 
-            id: 1, 
-            title: "Booked QuickFix Plumbing", 
-            date: "Today", 
-            messages: [
-                { role: 'ai', content: "Hello, I'm Ghost. What can I do for you today?", options: null },
-                { role: 'user', content: 'Book a plumber for tomorrow morning' },
-                { role: 'ai', content: 'I have found 2 options for you.', options: [
-                    { id: 1, name: 'QuickFix Plumbing', rate: 45, time: 'Tomorrow 9:00 AM' },
-                    { id: 2, name: 'Elite Pipe Masters', rate: 60, time: 'Tomorrow 10:30 AM' }
-                ]}
-            ] 
-        },
-        { 
-            id: 2, 
-            title: "Ordered Groceries", 
-            date: "Yesterday", 
-            messages: [
-                { role: 'ai', content: "Hello, I'm Ghost. What can I do for you today?", options: null },
-                { role: 'user', content: 'Order my weekly groceries' },
-                { role: 'ai', content: 'I found your usual list from Almarai. Processing your order now...', options: null },
-                { role: 'ai', content: 'Your groceries have been ordered and will be delivered by 5:00 PM today.', options: null }
-            ] 
-        },
-        {
-            id: 3,
-            title: "NYC Flights",
-            date: "Last Week",
-            messages: [
-                { role: 'ai', content: "Hello, I'm Ghost. What can I do for you today?", options: null },
-                { role: 'user', content: 'Find flights to New York for next weekend' },
-                { role: 'ai', content: 'I found 2 direct flights to JFK leaving this Friday. Which one works best?', options: [
-                    { id: 3, name: 'Delta Airlines', rate: 350, time: 'Friday 6:00 PM (Direct)' },
-                    { id: 4, name: 'JetBlue Airways', rate: 290, time: 'Friday 8:30 PM (Direct)' }
-                ]}
-            ]
-        },
-        {
-            id: 4,
-            title: "Paid Internet Bill",
-            date: "Last Month",
-            messages: [
-                { role: 'ai', content: "Hello, I'm Ghost. What can I do for you today?", options: null },
-                { role: 'user', content: 'Pay my upcoming internet bill' },
-                { 
-                    role: 'ai', 
-                    content: 'I have prepared your secure invoice.', 
-                    paymentDetails: { 
-                        item: 'Monthly Internet Bill', 
-                        amount: 85.00, 
-                        link: '#', 
-                        status: 'paid' 
-                    } 
-                }
-            ]
-        }
-    ]);
+    // --- SESSIONS STATE ---
+    // Initialize with a brand new empty session FIRST, followed by the 4 demo scenarios
+    // --- SESSIONS STATE ---
+    // Initialize with a brand new empty session FIRST, followed by 4 rich, multi-turn demo scenarios
+    const [sessions, setSessions] = useState(() => {
+        const freshSession = generateEmptySession();
+        return [
+            freshSession,
+            { 
+                id: 1, 
+                title: "Booked QuickFix Plumbing", 
+                date: "Today", 
+                messages: [
+                    { role: 'ai', content: "Hello Ziad! I'm ready to assist. What errand or task would you like me to handle for you today?", options: null },
+                    { role: 'user', content: 'Book a plumber for tomorrow morning' },
+                    { role: 'ai', content: 'I contacted licensed plumbers in Dammam for your kitchen sink repair. Here are the confirmed time slots.', options: [
+                        { id: 1, name: 'QuickFix Emergency Plumbing', rate: 45.00, time: 'Tomorrow at 10:00 AM' },
+                        { id: 2, name: 'Elite Pro Repair Masters', rate: 65.00, time: 'Tomorrow at 02:00 PM' }
+                    ]},
+                    { role: 'user', content: 'QuickFix Emergency Plumbing' },
+                    { 
+                        role: 'ai', 
+                        content: 'I have prepared your secure invoice for QuickFix Emergency Plumbing.', 
+                        paymentDetails: { 
+                            item: 'QuickFix Emergency Plumbing', 
+                            amount: 45.00, 
+                            link: '#', 
+                            status: 'paid',
+                            orderId: 'MOCK-PLUMBER-123'
+                        } 
+                    }
+                ] 
+            },
+            { 
+                id: 2, 
+                title: "Weekly Groceries", 
+                date: "Yesterday", 
+                messages: [
+                    { role: 'ai', content: "Hello Ziad! I'm ready to assist. What errand or task would you like me to handle for you today?", options: null },
+                    { role: 'user', content: 'Order my weekly groceries' },
+                    { role: 'ai', content: 'I\'ve compiled your weekly grocery basket (Almarai Milk, Eggs, Bread, Arabic Coffee). Here are the delivery options.', options: [
+                        { id: 1, name: 'GreenThumb Express Delivery', rate: 28.50, time: 'Delivery in 35 mins' },
+                        { id: 2, name: 'Panda Supermarket Direct', rate: 22.00, time: 'Delivery in 60 mins' }
+                    ]},
+                    { role: 'user', content: 'can i add to the list cheese and chocolate?' },
+                    { role: 'ai', content: 'Updated your grocery basket. Added Cheddar Cheese ($3.50), Dark Chocolate ($2.50). Current list: Almarai Milk, Eggs, Bread, Arabic Coffee, Cheddar Cheese, Dark Chocolate.', options: [
+                        { id: 1, name: 'GreenThumb Express Basket (6 Items)', rate: 34.50, time: 'Delivery in 30 mins' },
+                        { id: 2, name: 'Panda Supermarket Direct (6 Items)', rate: 32.00, time: 'Delivery in 55 mins' }
+                    ]}
+                ] 
+            },
+            {
+                id: 3,
+                title: "NYC Flights",
+                date: "Last Week",
+                messages: [
+                    { role: 'ai', content: "Hello Ziad! I'm ready to assist. What errand or task would you like me to handle for you today?", options: null },
+                    { role: 'user', content: 'Find flights to New York for next weekend' },
+                    { role: 'ai', content: 'I found available Economy routes for Dammam to New York. Here are the top available bookings.', options: [
+                        { id: 1, name: 'Emirates Direct (Dammam to New York)', rate: 1150.00, time: 'Departs Sat at 11:30 AM' },
+                        { id: 2, name: 'Saudia Express (Dammam to New York)', rate: 890.00, time: 'Departs Sat at 04:15 PM' }
+                    ]},
+                    { role: 'user', content: 'is there a business class option?' },
+                    { role: 'ai', content: 'I found available Business Class routes for Dammam to New York. Here are the top available bookings.', options: [
+                        { id: 1, name: 'Emirates Direct (Dammam to New York)', rate: 3200.00, time: 'Departs Sat at 11:30 AM' },
+                        { id: 2, name: 'Saudia Express (Dammam to New York)', rate: 2850.00, time: 'Departs Sat at 04:15 PM' }
+                    ]}
+                ]
+            },
+            {
+                id: 4,
+                title: "Paid Internet Bill",
+                date: "Last Month",
+                messages: [
+                    { role: 'ai', content: "Hello Ziad! I'm ready to assist. What errand or task would you like me to handle for you today?", options: null },
+                    { role: 'user', content: 'Pay my upcoming internet bill' },
+                    { role: 'ai', content: 'I\'ve fetched your verified account statement for STC Fiber Internet. Here is your total outstanding balance.', options: [
+                        { id: 1, name: 'STC Fiber Internet Balance Settlement', rate: 75.00, time: 'Instant Processing' }
+                    ]},
+                    { role: 'user', content: 'STC Fiber Internet Balance Settlement' },
+                    { 
+                        role: 'ai', 
+                        content: 'I have prepared your secure invoice.', 
+                        paymentDetails: { 
+                            item: 'STC Fiber Internet Balance Settlement', 
+                            amount: 75.00, 
+                            link: '#', 
+                            status: 'paid',
+                            orderId: 'MOCK-STC-789'
+                        } 
+                    }
+                ]
+            }
+        ];
+    });
     
-    const [activeSessionId, setActiveSessionId] = useState(1);
+    // Default the active session to the newly generated empty session at index 0
+    const [activeSessionId, setActiveSessionId] = useState(sessions[0].id);
     const [chatKey, setChatKey] = useState(0);
 
     const textUI = {
@@ -82,10 +127,9 @@ export default function Layout({ children, onLogout }) {
     const toggleLanguage = () => setLanguage(language === 'EN' ? 'AR' : 'EN');
 
     const handleNewErrand = () => {
-        const newId = Date.now();
-        const newSession = { id: newId, title: "New Errand", date: "Just now", messages: [] };
+        const newSession = generateEmptySession();
         setSessions([newSession, ...sessions]);
-        setActiveSessionId(newId);
+        setActiveSessionId(newSession.id);
         setChatKey(prev => prev + 1);
     };
 
