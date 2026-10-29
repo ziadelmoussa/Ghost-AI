@@ -29,13 +29,32 @@ const PlaneIcon = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="no
 const CreditCardIcon = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>;
 
 const GhostLogo = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px' }}>
-        <svg width="64" height="64" viewBox="0 0 512 512" fill="none" style={{ filter: 'drop-shadow(0 0 16px rgba(128, 128, 128, 0.15))', marginBottom: '12px', color: 'var(--text-primary)' }}>
-            <path d="M256 32C150 32 64 118 64 224V416C64 432.657 77.3431 446 94 446C102.214 446 109.954 442.743 115.542 436.958L156.49 394.996C166.273 384.975 181.727 384.975 191.51 394.996L230.98 435.539C241.365 446.223 258.635 446.223 269.02 435.539L308.49 394.996C318.273 384.975 333.727 384.975 343.51 394.996L384.458 436.958C390.046 442.743 397.786 446 406 446C422.657 446 436 432.657 436 416V224C436 118 350 32 256 32Z" fill="none" stroke="currentColor" strokeWidth="36" strokeLinecap="round" strokeLinejoin="round"/>
-            <ellipse cx="192" cy="208" rx="28" ry="36" fill="currentColor" />
-            <ellipse cx="320" cy="208" rx="28" ry="36" fill="currentColor" />
-        </svg>
-        <h2 style={{ fontSize: '22px', fontWeight: 600, margin: 0, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>Ghost AI</h2>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '28px', textAlign: 'center' }}>
+        <div style={{ 
+            position: 'relative', 
+            padding: '16px', 
+            borderRadius: '24px', 
+            background: 'linear-gradient(135deg, rgba(120, 119, 198, 0.1), rgba(255, 255, 255, 0.05))',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+            border: '1px solid var(--border-color)',
+            marginBottom: '14px',
+            animation: 'pulseGlow 3s ease-in-out infinite'
+        }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--accent-color)' }}>
+                <path d="M9 10h.01" />
+                <path d="M15 10h.01" />
+                <path d="M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z" />
+            </svg>
+        </div>
+        <h2 style={{ fontSize: '24px', fontWeight: 700, margin: '0 0 6px 0', color: 'var(--text-primary)', letterSpacing: '-0.7px' }}>Ghost AI</h2>
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, fontWeight: 400 }}>Your Autonomous Stateful Errand Assistant</p>
+        
+        <style>{`
+            @keyframes pulseGlow {
+                0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(0, 122, 255, 0.1); }
+                50% { transform: scale(1.03); box-shadow: 0 0 30px rgba(0, 122, 255, 0.25); }
+            }
+        `}</style>
     </div>
 );
 
