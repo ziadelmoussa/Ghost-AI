@@ -1,26 +1,33 @@
-# Ghost AI — The Autonomous Errand Assistant
+# Ghost AI
 
 ## Overview
-**Ghost AI** is an autonomous, stateful procurement proxy that processes natural language and voice input to execute scheduling, vendor curation, and payment processing entirely hands-free.
+Ghost AI is an autonomous proxy application designed to process natural language and voice input for scheduling, vendor curation, and payment execution. 
 
-Current conversational interfaces lack the capability to execute multi-step commercial transactions autonomously. Ghost AI bridges this gap by acting as an intermediary between unstructured user requests and strict third-party supplier logistics. Built with a premium, glassmorphic UI and a robust stateful engine, it drastically reduces the cognitive load of daily errands, bookings, and inventory procurement.
+Current conversational interfaces lack the capability to execute multi-step commercial transactions autonomously. Ghost AI bridges this gap by acting as an intermediary between unstructured user requests and strict third-party supplier logistics. The application parses complex requests, maintains session context, and executes mock commercial transactions.
+
+## Live Application
+The deployed application can be accessed here:
+- **Live Link:** https://ghost-ai-vvqd.vercel.app/
 
 ## Architecture & Tech Stack
-The application utilizes a decoupled architecture, separating a highly polished client interface from a state-aware transaction processing engine.
+The application utilizes a decoupled architecture, separating the client interface from a stateful transaction processing engine.
 
-- **Frontend:** React / Vite (Glassmorphism UI, Ambient Gradients, Web Speech API)
+- **Frontend:** React / Vite (Web Speech API integration)
 - **Backend:** Python / FastAPI (Stateful scenario engine, Server-Sent Events)
-- **Voice Engine:** Native Web Speech API (Client-side transcription)
-- **Payment Processing:** PayPal Developer REST API (Live status polling)
-- **State Management:** In-memory dictionary mapped to unique session IDs
+- **Payment Processing:** PayPal Developer REST API
+- **State Management:** In-memory session tracking
 
 ## Core Capabilities
-- **Voice-Native Interface:** Users can dictate complex tasks naturally without typing, visualized with real-time audio reactivity.
-- **Stateful Scenario Engine:** Context-aware, multi-turn task handling (e.g., flight bookings, plumbing dispatch, groceries, utility bills).
-- **Frictionless Mock Checkout:** Generates secure checkout sessions via the PayPal Developer Sandbox upon user confirmation.
-- **Real-Time Polling:** The React frontend polls the FastAPI backend, seamlessly transitioning from checkout to an animated Apple Wallet-style receipt upon payment success.
+- **Voice Interface:** Processes dictated tasks via native client-side transcription (Web Speech API).
+- **Stateful Engine:** Handles context-aware, multi-turn task routing for distinct scenarios (e.g., flight bookings, plumbing dispatch, groceries, utility bills).
+- **Payment Integration:** Generates secure checkout sessions via the PayPal Developer Sandbox upon user confirmation.
+- **Real-Time Polling:** Asynchronous polling from the React client to the FastAPI backend to verify and update transaction states.
 
-## Getting Started
+---
+
+## Local Development Setup
+
+To run the application locally for testing or development, follow the steps below.
 
 ### Prerequisites
 - Python (3.9 or higher)
@@ -31,12 +38,12 @@ The application utilizes a decoupled architecture, separating a highly polished 
 
 **1. Clone the repository:**
 ```bash
-git clone [https://github.com/your-username/Ghost-AI.git](https://github.com/your-username/Ghost-AI.git)
+git clone [https://github.com/ziadelmoussa/Ghost-AI.git](https://github.com/ziadelmoussa/Ghost-AI.git)
 cd Ghost-AI
 ```
 
 **2. Setup the FastAPI Backend:**
-Open a terminal and navigate to the `backend` directory:
+Navigate to the `backend` directory and configure the Python environment:
 ```bash
 cd backend
 python -m venv venv
@@ -45,7 +52,7 @@ pip install -r requirements.txt
 ```
 
 **3. Configure Environment Variables:**
-Create a `.env` file in the `backend` directory and add your PayPal Sandbox keys:
+Create a `.env` file in the `backend` directory and add your PayPal Sandbox credentials:
 ```env
 PAYPAL_CLIENT_ID=your_paypal_client_id
 PAYPAL_CLIENT_SECRET=your_paypal_client_secret
@@ -53,22 +60,24 @@ PAYPAL_API_BASE=[https://api-m.sandbox.paypal.com](https://api-m.sandbox.paypal.
 ```
 
 **4. Start the Backend Server:**
-While still in the `backend` directory, run:
+Ensure you are in the `backend` directory, then execute:
 ```bash
 uvicorn main:app --reload --port 8000
 ```
 
 **5. Setup and Start the React Frontend:**
-Open a new terminal window and navigate to the `frontend` directory:
+Open a new terminal window, navigate to the `frontend` directory, and start the development server:
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Navigate to `http://localhost:5173` in your browser to interact with Ghost AI.
+Navigate to `http://localhost:5173` in your browser to access the local instance.
+
+---
 
 ## Contributors
 *Developed for the 2026 PayPal Hackathon*
 
 - **Ziadelmoussa** — Lead Full-Stack Engineer (Architecture, UI/UX Design, Frontend React/Vite, Backend FastAPI Integration)
-- **HussainYKB** — Backend Contributor (Payment logic & routing support)
+- **HussianYKB** — Backend Contributor (Payment logic & routing support)
