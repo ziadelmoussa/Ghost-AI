@@ -1,763 +1,412 @@
 /* --- AMBIENT BACKGROUND GLOW --- */
-
 .chat-container {
-
     display: flex;
-
     flex-direction: column;
-
     height: 100%;
-
     position: relative;
-
     padding: 0 20px;
-
     background: radial-gradient(circle at 50% 15%, rgba(0, 122, 255, 0.06) 0%, transparent 60%),
-
                 radial-gradient(circle at 80% 80%, rgba(142, 45, 226, 0.04) 0%, transparent 50%);
-
 }
-
-
 
 .chat-window {
-
     flex: 1;
-
     overflow-y: auto;
-
     padding: 24px 0;
-
     display: flex;
-
     flex-direction: column;
-
     gap: 16px;
-
     scroll-behavior: smooth;
-
 }
-
-
 
 /* --- MESSAGE BUBBLES --- */
-
 .message-wrapper {
-
     display: flex;
-
     width: 100%;
-
     margin-bottom: 8px;
-
     animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-
 }
-
-
 
 .message-wrapper.user { justify-content: flex-end; }
-
 .message-wrapper.ai { justify-content: flex-start; }
 
-
-
 .message-bubble {
-
     max-width: 75%;
-
     padding: 14px 20px;
-
     font-size: 15px;
-
     line-height: 1.5;
-
     word-wrap: break-word;
-
 }
-
-
 
 /* User Bubble: Vibrant Apple Blue Gradient */
-
 .message-bubble.user {
-
     background: linear-gradient(135deg, #007aff 0%, #0056d6 100%);
-
     color: white;
-
     border-radius: 20px 20px 4px 20px;
-
     box-shadow: 0 6px 20px rgba(0, 122, 255, 0.25);
-
 }
-
-
 
 /* AI Bubble: Deep Frosted Glass */
-
 .message-bubble.ai {
-
     background: var(--surface-bg);
-
     backdrop-filter: blur(25px);
-
     -webkit-backdrop-filter: blur(25px);
-
     border: 1px solid var(--border-color);
-
     color: var(--text-primary);
-
     border-radius: 20px 20px 20px 4px;
-
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-
 }
-
-
 
 /* --- OPTION CARDS --- */
-
 .option-card-btn {
-
     background: var(--surface-hover);
-
     border: 1px solid var(--border-color);
-
     border-radius: 14px;
-
     padding: 14px 18px;
-
     color: var(--text-primary);
-
     text-align: left;
-
     cursor: pointer;
-
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-
     box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-
 }
-
-
 
 .option-card-btn:hover {
-
     transform: translateY(-2px);
-
     border-color: var(--accent-color);
-
     box-shadow: 0 8px 24px rgba(0, 122, 255, 0.12);
-
 }
 
-
-
-/* --- SUGGESTIONS GRID (Dynamic Neon-Glow Glass Cards) --- */
-
+/* --- TINTED FROSTED GLASS SUGGESTIONS GRID --- */
 .suggestions-grid {
-
     display: grid;
-
     grid-template-columns: repeat(2, 1fr);
-
-    gap: 18px;
-
+    gap: 16px;
     margin-top: 32px;
-
     width: 100%;
-
     max-width: 640px;
-
 }
-
-
 
 .suggestion-card {
-
     display: flex;
-
     flex-direction: column;
-
     align-items: flex-start;
-
-    padding: 22px;
-
+    padding: 20px;
     border-radius: 20px;
-
-    border: 1px solid rgba(255, 255, 255, 0.2);
-
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
     cursor: pointer;
-
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-
-    color: #1d1d1f;
-
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
     text-align: left;
-
-    height: 125px;
-
-    justify-content: space-between;
-
-    font-family: inherit;
-
+    min-height: 125px; /* Ensures text never touches icon */
+    gap: 16px; 
     position: relative;
-
     overflow: hidden;
-
 }
 
-
-
-/* Gorgeous rich multi-stop gradients with internal glass sheen */
-
+/* 1. Plumber (Warm Orange/Red Tint) */
 .suggestion-card:nth-child(1) {
-
-    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%);
-
-    box-shadow: 0 10px 30px rgba(255, 154, 158, 0.25);
-
+    background: linear-gradient(135deg, rgba(255, 149, 0, 0.12) 0%, rgba(255, 59, 48, 0.03) 100%);
+    border: 1px solid rgba(255, 149, 0, 0.2);
+    box-shadow: 0 8px 24px rgba(255, 149, 0, 0.05);
+}
+.suggestion-card:nth-child(1) .suggestion-icon {
+    background: linear-gradient(135deg, rgba(255, 149, 0, 0.2) 0%, rgba(255, 59, 48, 0.08) 100%);
+    color: #ff9f0a;
 }
 
+/* 2. Groceries (Mint/Green Tint) */
 .suggestion-card:nth-child(2) {
-
-    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
-
-    box-shadow: 0 10px 30px rgba(132, 250, 176, 0.25);
-
+    background: linear-gradient(135deg, rgba(52, 199, 89, 0.12) 0%, rgba(0, 190, 165, 0.03) 100%);
+    border: 1px solid rgba(52, 199, 89, 0.2);
+    box-shadow: 0 8px 24px rgba(52, 199, 89, 0.05);
+}
+.suggestion-card:nth-child(2) .suggestion-icon {
+    background: linear-gradient(135deg, rgba(52, 199, 89, 0.2) 0%, rgba(0, 190, 165, 0.08) 100%);
+    color: #32d74b;
 }
 
+/* 3. Flights (Sky Blue Tint) */
 .suggestion-card:nth-child(3) {
-
-    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
-
-    box-shadow: 0 10px 30px rgba(161, 196, 253, 0.25);
-
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.12) 0%, rgba(94, 92, 230, 0.03) 100%);
+    border: 1px solid rgba(10, 132, 255, 0.2);
+    box-shadow: 0 8px 24px rgba(10, 132, 255, 0.05);
+}
+.suggestion-card:nth-child(3) .suggestion-icon {
+    background: linear-gradient(135deg, rgba(10, 132, 255, 0.2) 0%, rgba(94, 92, 230, 0.08) 100%);
+    color: #0a84ff;
 }
 
+/* 4. Internet Bill (Amethyst Purple Tint) */
 .suggestion-card:nth-child(4) {
-
-    background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);
-
-    box-shadow: 0 10px 30px rgba(213, 126, 235, 0.25);
-
+    background: linear-gradient(135deg, rgba(191, 90, 242, 0.12) 0%, rgba(212, 59, 151, 0.03) 100%);
+    border: 1px solid rgba(191, 90, 242, 0.2);
+    box-shadow: 0 8px 24px rgba(191, 90, 242, 0.05);
+}
+.suggestion-card:nth-child(4) .suggestion-icon {
+    background: linear-gradient(135deg, rgba(191, 90, 242, 0.2) 0%, rgba(212, 59, 151, 0.08) 100%);
+    color: #bf5af2;
 }
 
-
-
+/* Universal Hover and Icon/Text Formatting */
 .suggestion-card:hover {
-
-    transform: translateY(-5px) scale(1.01);
-
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.15);
-
-    filter: brightness(1.03);
-
+    transform: translateY(-4px) scale(1.02);
+    filter: brightness(1.15);
 }
-
-
 
 .suggestion-icon {
-
-    font-size: 20px;
-
-    background: rgba(255, 255, 255, 0.6);
-
-    backdrop-filter: blur(10px);
-
-    padding: 8px;
-
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
     border-radius: 12px;
-
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-
+    font-size: 18px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
 }
-
-
 
 .suggestion-text {
-
     font-size: 14px;
-
-    font-weight: 700;
-
-    line-height: 1.35;
-
+    font-weight: 600;
+    line-height: 1.4;
     font-family: inherit;
-
+    color: var(--text-primary);
     letter-spacing: -0.2px;
-
+    margin: 0;
 }
-
-
 
 /* --- INPUT FORM (Floating Glass Pill) --- */
-
 .input-form {
-
     display: flex;
-
     gap: 12px;
-
     padding: 10px 14px;
-
     background: var(--surface-bg);
-
     backdrop-filter: blur(30px);
-
     -webkit-backdrop-filter: blur(30px);
-
     border: 1px solid var(--border-color);
-
     border-radius: 980px;
-
     margin-bottom: 24px;
-
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-
     align-items: center;
-
 }
-
-
 
 .chat-input {
-
     flex: 1;
-
     background: transparent;
-
     border: none;
-
     padding: 10px 16px;
-
     font-size: 15px;
-
     color: var(--text-primary);
-
     outline: none;
-
 }
-
-
 
 .chat-input::placeholder { color: var(--text-secondary); }
 
-
-
 .btn-send {
-
     background: var(--accent-color);
-
     color: white;
-
     border: none;
-
     border-radius: 980px;
-
     padding: 12px 22px;
-
     font-size: 14px;
-
     font-weight: 600;
-
     cursor: pointer;
-
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     gap: 6px;
-
     box-shadow: 0 4px 14px rgba(0, 122, 255, 0.3);
-
 }
-
-
 
 .btn-send:hover:not(:disabled) {
-
     background: #0056d6;
-
     transform: scale(1.05);
-
     box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
-
 }
-
-
 
 .btn-send:disabled {
-
     opacity: 0.5;
-
     cursor: not-allowed;
-
     box-shadow: none;
-
 }
-
-
 
 .payment-link {
-
     color: var(--accent-color);
-
     text-decoration: none;
-
     font-weight: 600;
-
     display: inline-block;
-
     margin-top: 4px;
-
 }
-
 .payment-link:hover { text-decoration: underline; }
 
-
-
 .loading-text {
-
     align-self: center;
-
     font-size: 13px;
-
     color: var(--text-secondary);
-
     margin-top: 10px;
-
     animation: pulse 1.5s infinite;
-
 }
-
-
 
 .visualizer-container {
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     gap: 4px;
-
     height: 40px;
-
 }
-
 .visualizer-bar {
-
     width: 4px;
-
     height: 10px;
-
     background-color: var(--accent-color);
-
     border-radius: 4px;
-
     animation: bounce 0.5s infinite alternate;
-
 }
-
 .visualizer-bar:nth-child(2) { animation-delay: 0.1s; }
-
 .visualizer-bar:nth-child(3) { animation-delay: 0.2s; }
-
 .visualizer-bar:nth-child(4) { animation-delay: 0.3s; }
-
 .visualizer-bar:nth-child(5) { animation-delay: 0.4s; }
 
-
-
 @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-
 @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-
 @keyframes bounce { from { height: 10px; } to { height: 26px; } }
 
-
-
 /* --- RICH PAYMENT CARD (Apple Wallet Style) --- */
-
 .payment-card {
-
     margin-top: 14px;
-
     background: var(--bg-app);
-
     border: 1px solid var(--border-color);
-
     border-radius: 18px;
-
     overflow: hidden;
-
     width: 100%;
-
     max-width: 320px;
-
     box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-
     transition: transform 0.25s ease;
-
 }
-
-
 
 .payment-card:hover {
-
     transform: translateY(-2px);
-
     box-shadow: 0 12px 32px rgba(0,0,0,0.12);
-
 }
-
-
 
 .payment-card-header {
-
     display: flex;
-
     align-items: center;
-
     gap: 8px;
-
     background: rgba(0, 122, 255, 0.1);
-
     color: var(--accent-color);
-
     padding: 12px 16px;
-
     font-size: 12px;
-
     font-weight: 700;
-
     text-transform: uppercase;
-
     letter-spacing: 0.6px;
-
     border-bottom: 1px solid var(--border-color);
-
 }
-
-
 
 .payment-card-body {
-
     padding: 18px 16px;
-
     display: flex;
-
     flex-direction: column;
-
     gap: 6px;
-
 }
-
-
 
 .payment-item-name {
-
     font-size: 15px;
-
     font-weight: 600;
-
     color: var(--text-primary);
-
 }
-
-
 
 .payment-item-price {
-
     font-size: 26px;
-
     font-weight: 800;
-
     color: var(--text-primary);
-
     letter-spacing: -0.5px;
-
 }
-
-
 
 .btn-pay-now {
-
     display: block;
-
     margin: 0 16px 16px;
-
     background: var(--accent-color);
-
     color: white;
-
     text-align: center;
-
     padding: 12px;
-
     border-radius: 14px;
-
     text-decoration: none;
-
     font-weight: 600;
-
     font-size: 15px;
-
     box-shadow: 0 4px 14px rgba(0, 122, 255, 0.25);
-
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-
 }
-
-
 
 .btn-pay-now:hover {
-
     background: #0056d6;
-
     transform: scale(1.02);
-
     box-shadow: 0 6px 18px rgba(0, 122, 255, 0.35);
-
 }
-
-
 
 /* --- ANIMATED TYPING INDICATOR --- */
-
 .typing-indicator {
-
     display: flex;
-
     align-items: center;
-
     gap: 5px;
-
     padding: 14px 20px;
-
     background: var(--surface-bg);
-
     backdrop-filter: blur(25px);
-
     -webkit-backdrop-filter: blur(25px);
-
     border: 1px solid var(--border-color);
-
     border-radius: 20px 20px 20px 4px;
-
     width: fit-content;
-
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-
 }
-
-
 
 .typing-dot {
-
     width: 7px;
-
     height: 7px;
-
     background-color: var(--text-secondary);
-
     border-radius: 50%;
-
     animation: typingBounce 1.4s infinite ease-in-out both;
-
 }
-
-
 
 .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-
 .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 
-
-
 @keyframes typingBounce {
-
     0%, 80%, 100% { transform: scale(0); opacity: 0.4; }
-
     40% { transform: scale(1); opacity: 1; }
-
 }
-
-
 
 /* --- APPLE PAY STYLE RECEIPT --- */
-
 .receipt-card {
-
     margin-top: 14px;
-
     background: var(--surface-bg);
-
     border: 1px solid rgba(52, 199, 89, 0.35);
-
     border-radius: 18px;
-
     overflow: hidden;
-
     width: 100%;
-
     max-width: 320px;
-
     box-shadow: 0 8px 30px rgba(52, 199, 89, 0.12);
-
 }
-
-
 
 .receipt-header {
-
     background: rgba(52, 199, 89, 0.12);
-
     color: #34c759;
-
     padding: 12px 16px;
-
     font-size: 13px;
-
     font-weight: 700;
-
     display: flex;
-
     align-items: center;
-
     gap: 8px;
-
     border-bottom: 1px solid rgba(52, 199, 89, 0.2);
-
 }
-
-
 
 .receipt-body {
-
     padding: 18px 16px;
-
 }
 
-
-
 .receipt-amount {
-
     font-size: 30px;
-
     font-weight: 800;
-
     color: var(--text-primary);
-
     margin-top: 6px;
-
     letter-spacing: -0.5px;
-
-} 
+}
