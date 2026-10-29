@@ -37,7 +37,6 @@ payment_statuses = {}
 
 # --- HELPER PARSERS ---
 def clean_city_string(city_str: str) -> str:
-    """Strips out temporal and filler words from city names."""
     return re.sub(
         r'\s+(for|next|this|on|tomorrow|weekend|today|next week|next month|cheap|flights|flight|ticket).*$', 
         '', 
@@ -49,7 +48,7 @@ def get_or_create_session(session_id: str) -> dict:
     if session_id not in sessions_db:
         sessions_db[session_id] = {
             "history": [],
-            "active_scenario": None, # 'grocery', 'flight', 'plumber', 'bill'
+            "active_scenario": None, 
             "grocery_items": ["Almarai Milk", "Eggs", "Bread", "Arabic Coffee"],
             "grocery_total": 28.50,
             "flight_origin": "Dammam",
@@ -63,18 +62,12 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
     prompt_lower = prompt_raw.lower()
     clean_alpha = re.sub(r'[^a-zA-Z0-9\s]', '', prompt_lower).strip()
 
-    # -------------------------------------------------------------
-    # 0. NOISE & SHORT INPUT CHECK
-    # -------------------------------------------------------------
     if len(clean_alpha) < 2 and clean_alpha not in ["hi"]:
         return {
             "ai_response": "I didn't quite catch that. Could you please specify how I can assist with your errand?",
             "options": []
         }
 
-    # -------------------------------------------------------------
-    # 1. GREETINGS & IDENTITY
-    # -------------------------------------------------------------
     if any(k in prompt_lower for k in ["your name", "who are you", "what is your name", "whats your name"]):
         return {
             "ai_response": "My name is Ghost. I am your autonomous AI proxy designed to handle real-world errands, bookings, and payments directly.",
@@ -95,25 +88,97 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
         }
 
     # -------------------------------------------------------------
-    # SCENARIO 1: GROCERIES (Handles initial order & adding items)
+    # 2. ACTIVE SCENARIO CHECKOUT / CONVERSATIONAL CONFIRMATION
     # -------------------------------------------------------------
-    grocery_triggers = ["grocery", "groceries", "order", "food", "milk", "bread", "pantry", "basket", "add to the list", "add to list", "add cheese", "chocolate"]
-    is_grocery_action = any(k in prompt_lower for k in grocery_triggers) or (session["active_scenario"] == "grocery" and any(k in prompt_lower for k in ["add", "item", "more", "also", "include", "cheese", "chocolate"]))
+    # This now catches "first option", "I like this", "sounds good", etc.
+    confirm_keywords = [
+        "pay", "checkout", "book", "confirm", "take it", "buy", "proceed", 
+        "select", "yes", "let me pay", "first", "second", "option", "i like", 
+        "go with", "this one", "that one", "sounds good", "perfect", "do it", "sure", "ok", "okay"
+    ]
+    is_bill_explicit = any(b in prompt_lower for b in ["water", "electric", "electricity", "stc", "utility", "bill"])
+
+    # Only trigger checkout if we are already in a scenario AND the user confirms
+    if session["active_scenario"] and any(k in prompt_lower for k in confirm_keywords) and not is_bill_explicit:
+        scenario = session["active_scenario"]
+        
+        if scenario == "flight":
+            origin = session.get("flight_origin", "Dammam")
+            destination = session.get("flight_destination", "New York")
+            
+            # Make it look smart: adjust price based on whether they said "first" or "second"
+            selected_rate = 890.00 if "second" in prompt_lower else 1150.00
+            
+            return {
+                "ai_response": f"Excellent choice. I've prepared the secure checkout for your flight from {origin} to {destination}.",
+                "options": [
+                    {
+                        "id": 1,
+                        "name": f"Flight Booking ({origin} to {destination})",
+                        "rate": selected_rate,
+                        "time": "Instant E-Ticket Issue"
+                    }
+                ]
+            }
+        elif scenario == "grocery":
+            return {
+                "ai_response": "Great. I've finalized your basket and prepared the checkout.",
+                "options": [
+                    {
+                        "id": 1,
+                        "name": f"GreenThumb Express Basket ({len(session['grocery_items'])} Items)",
+                        "rate": round(session["grocery_total"], 2),
+                        "time": "Delivery in 30 mins"
+                    }
+                ]
+            }
+        elif scenario == "plumber":
+            selected_time = "02:00 PM" if "second" in prompt_lower else "10:00 AM"
+            return {
+                "ai_response": f"Confirmed for {selected_time}. I've prepared the dispatch deposit for your technician.",
+                "options": [
+                    {
+                        "id": 1,
+                        "name": "QuickFix Emergency Plumbing Dispatch",
+                        "rate": 45.00,
+                        "time": f"Tomorrow at {selected_time}"
+                    }
+                ]
+            }
+
+    # -------------------------------------------------------------
+    # SCENARIO 1: GROCERIES
+    # -------------------------------------------------------------
+    grocery_triggers = ["grocery", "groceries", "order", "food", "milk", "bread", "pantry", "basket", "add to the list", "add to list"]
+    is_grocery_action = any(k in prompt_lower for k in grocery_triggers) or (session["active_scenario"] == "grocery" and any(k in prompt_lower for k in ["add", "item", "more", "also", "include"]))
 
     if is_grocery_action:
         session["active_scenario"] = "grocery"
 
-        # Check if user is trying to add new items to the basket
         if any(k in prompt_lower for k in ["add", "include", "put", "also"]):
             new_additions = []
-            if "cheese" in prompt_lower and "Cheddar Cheese" not in session["grocery_items"]:
-                session["grocery_items"].append("Cheddar Cheese")
-                session["grocery_total"] += 3.50
-                new_additions.append("Cheddar Cheese ($3.50)")
-            if any(c in prompt_lower for c in ["choclate", "chocolate"]) and "Dark Chocolate" not in session["grocery_items"]:
-                session["grocery_items"].append("Dark Chocolate")
-                session["grocery_total"] += 2.50
-                new_additions.append("Dark Chocolate ($2.50)")
+            
+            common_items = {
+                "cheese": 3.50, "chocolate": 2.50, "apples": 4.00, "water": 1.50, 
+                "chicken": 8.00, "rice": 5.00, "tomatoes": 3.00, "sugar": 2.00, 
+                "coffee": 6.00, "tea": 4.50, "bananas": 2.00, "beef": 12.00
+            }
+            for item, price in common_items.items():
+                if item in prompt_lower:
+                    formatted_item = item.title()
+                    if not any(formatted_item in existing for existing in session["grocery_items"]):
+                        session["grocery_items"].append(formatted_item)
+                        session["grocery_total"] += price
+                        new_additions.append(f"{formatted_item} (${price:.2f})")
+            
+            if not new_additions:
+                match = re.search(r'(?:add|include)\s+([a-zA-Z\s]+)', prompt_lower)
+                if match:
+                    custom_item = match.group(1).split()[0].title()
+                    if custom_item and len(custom_item) > 2 and custom_item not in session["grocery_items"]:
+                        session["grocery_items"].append(custom_item)
+                        session["grocery_total"] += 5.00
+                        new_additions.append(f"{custom_item} ($5.00)")
 
             items_str = ", ".join(session["grocery_items"])
             added_text = f" Added {', '.join(new_additions)}." if new_additions else ""
@@ -156,9 +221,9 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
             }
 
     # -------------------------------------------------------------
-    # SCENARIO 2: FLIGHTS & TRAVEL (Origin/Destination Parsing & Route Logic)
+    # SCENARIO 2: FLIGHTS & TRAVEL
     # -------------------------------------------------------------
-    flight_triggers = ["flight", "fly", "trip", "travel", "plane", "ticket", "airline", "dubai", "new york"]
+    flight_triggers = ["flight", "fly", "trip", "travel", "plane", "ticket", "airline", "dubai", "new york", "london"]
     is_flight_action = any(k in prompt_lower for k in flight_triggers) or (session["active_scenario"] == "flight" and any(k in prompt_lower for k in ["cheaper", "business", "first class", "change", "date"]))
 
     if is_flight_action:
@@ -224,12 +289,17 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
         time_slot_1 = "Tomorrow at 06:00 PM" if "evening" in prompt_lower else "Tomorrow at 10:00 AM"
         time_slot_2 = "Tomorrow at 08:00 PM" if "evening" in prompt_lower else "Tomorrow at 02:00 PM"
 
+        repair_type = "kitchen sink repair"
+        repair_match = re.search(r'(?:fix|repair)\s+([a-zA-Z\s]+)', prompt_lower)
+        if repair_match:
+            repair_type = repair_match.group(1).split()[0] + " repair"
+
         return {
-            "ai_response": "I contacted licensed plumbers in Dammam for your kitchen sink repair. Here are the confirmed time slots.",
+            "ai_response": f"I contacted licensed technicians in Dammam for your {repair_type}. Here are the confirmed time slots.",
             "options": [
                 {
                     "id": 1,
-                    "name": "QuickFix Emergency Plumbing",
+                    "name": "QuickFix Emergency Services",
                     "rate": 45.00,
                     "time": time_slot_1
                 },
@@ -245,7 +315,7 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
     # -------------------------------------------------------------
     # SCENARIO 4: BILL PAYMENTS
     # -------------------------------------------------------------
-    bill_triggers = ["bill", "internet", "stc", "mobily", "utility", "pay", "electric", "electricity", "water", "phone"]
+    bill_triggers = ["bill", "internet bill", "utility bill", "electric bill", "water bill", "stc", "mobily", "electricity"]
     if any(k in prompt_lower for k in bill_triggers):
         session["active_scenario"] = "bill"
         provider = "STC Fiber Internet" if ("stc" in prompt_lower or "internet" in prompt_lower or "phone" in prompt_lower) else "Saudi Electricity Company" if "electric" in prompt_lower else "National Water Company"
@@ -264,7 +334,7 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
         }
 
     # -------------------------------------------------------------
-    # GENERAL CONVERSATIONAL QUESTIONS (No cards)
+    # GENERAL CONVERSATIONAL QUESTIONS
     # -------------------------------------------------------------
     if any(prompt_lower.startswith(q) for q in ["how much", "why", "can you", "where is", "what is"]):
         return {
@@ -273,14 +343,14 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
         }
 
     # -------------------------------------------------------------
-    # GENERAL ACTIONABLE FALLBACK
+    # INTELLIGENT ACTIONABLE FALLBACK
     # -------------------------------------------------------------
-    clean_task = prompt_raw[:30] + "..." if len(prompt_raw) > 30 else prompt_raw
+    clean_task = prompt_raw.capitalize() if len(prompt_raw) < 35 else prompt_raw[:32] + "..."
     return {
-        "ai_response": f"I've processed your errand request for '{clean_task}' and prepared options.",
+        "ai_response": f"I analyzed your request for '{clean_task}'. Here are verified providers available to execute this task immediately.",
         "options": [
-            {"id": 1, "name": "Priority Concierge Dispatch", "rate": 35.00, "time": "Completion within 1 hour"},
-            {"id": 2, "name": "Standard Delivery Service", "rate": 20.00, "time": "Completion within 3 hours"}
+            {"id": 1, "name": f"Priority Dispatch: {clean_task}", "rate": 35.00, "time": "Fulfill within 1 hour"},
+            {"id": 2, "name": f"Standard Dispatch: {clean_task}", "rate": 20.00, "time": "Fulfill within 24 hours"}
         ]
     }
 

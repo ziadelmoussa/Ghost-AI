@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Layout.css';
 
-// Helper to instantly generate a fresh, empty session
 const generateEmptySession = () => ({
     id: Date.now(),
     title: "New Errand",
@@ -11,13 +10,8 @@ const generateEmptySession = () => ({
 
 export default function Layout({ children, onLogout }) {
     const [theme, setTheme] = useState('dark');
-    const [language, setLanguage] = useState('EN');
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-    // --- SESSIONS STATE ---
-    // Initialize with a brand new empty session FIRST, followed by the 4 demo scenarios
-    // --- SESSIONS STATE ---
-    // Initialize with a brand new empty session FIRST, followed by 4 rich, multi-turn demo scenarios
     const [sessions, setSessions] = useState(() => {
         const freshSession = generateEmptySession();
         return [
@@ -110,21 +104,14 @@ export default function Layout({ children, onLogout }) {
         ];
     });
     
-    // Default the active session to the newly generated empty session at index 0
     const [activeSessionId, setActiveSessionId] = useState(sessions[0].id);
     const [chatKey, setChatKey] = useState(0);
-
-    const textUI = {
-        EN: { history: "History", newErrand: "+ New Errand", logout: "Log Out", toggleLang: "🌐 AR" },
-        AR: { history: "السجل", newErrand: "مهمة جديدة +", logout: "تسجيل الخروج", toggleLang: "🌐 EN" }
-    };
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
     }, [theme]);
 
     const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
-    const toggleLanguage = () => setLanguage(language === 'EN' ? 'AR' : 'EN');
 
     const handleNewErrand = () => {
         const newSession = generateEmptySession();
@@ -167,24 +154,23 @@ export default function Layout({ children, onLogout }) {
             return React.cloneElement(child, { 
                 updateChatTitle,
                 initialMessages: activeSession?.messages, 
-                onMessagesChange: saveMessagesToSession,  
-                language: language 
+                onMessagesChange: saveMessagesToSession
             });
         }
         return child;
     });
 
     return (
-        <div className={`app-layout ${language === 'AR' ? 'rtl-mode' : ''}`}>
+        <div className="app-layout">
             <aside className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
                 <div className="sidebar-content">
                     <div className="sidebar-header">
-                        <h2>{textUI[language].history}</h2>
+                        <h2>History</h2>
                         <button className="icon-btn" onClick={() => setIsSidebarOpen(false)}>✕</button>
                     </div>
                     
                     <button className="new-chat-btn" onClick={handleNewErrand}>
-                        {textUI[language].newErrand}
+                        + New Errand
                     </button>
 
                     <div className="history-list">
@@ -198,20 +184,13 @@ export default function Layout({ children, onLogout }) {
                                     <div className="history-title">{chat.title}</div>
                                     <div className="history-date">{chat.date}</div>
                                 </div>
-                                <button 
-                                    className="delete-icon-btn" 
-                                    onClick={(e) => handleDelete(e, chat.id)}
-                                >
-                                    ✕
-                                </button>
+                                <button className="delete-icon-btn" onClick={(e) => handleDelete(e, chat.id)}>✕</button>
                             </div>
                         ))}
                     </div>
 
                     <div className="sidebar-footer">
-                        <button className="logout-btn" onClick={onLogout}>
-                            {textUI[language].logout}
-                        </button>
+                        <button className="logout-btn" onClick={onLogout}>Log Out</button>
                     </div>
                 </div>
             </aside>
@@ -224,9 +203,6 @@ export default function Layout({ children, onLogout }) {
                         <div></div>
                     )}
                     <div className="header-actions">
-                        <button className="pill-btn" onClick={toggleLanguage}>
-                            {textUI[language].toggleLang}
-                        </button>
                         <button className="pill-btn" onClick={toggleTheme}>
                             {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
                         </button>
