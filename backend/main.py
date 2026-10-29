@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from fastapi.responses import StreamingResponse 
+from fastapi.responses import StreamingResponse, HTMLResponse
 
 load_dotenv()
 from payments import create_paypal_order
@@ -450,3 +451,53 @@ async def process_checkout(request: CheckoutRequest):
 async def check_payment_status(order_id: str):
     status = payment_statuses.get(order_id, "pending")
     return {"status": status}
+
+
+
+@app.get("/payment/success")
+async def payment_success(token: str):
+    # FIX: Changed to "paid" so the React frontend polling triggers the receipt card immediately!
+    payment_statuses[token] = "paid"
+    
+    return HTMLResponse("""
+        <html>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; color: #fff; margin: 0;">
+                <div style="text-align: center;">
+                    
+                    <!-- Animated Green Checkmark -->
+                    <div style="display: flex; justify-content: center; margin-bottom: 24px;">
+                        <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" style="width: 72px; height: 72px; border-radius: 50%; display: block; stroke-width: 3; stroke: #34c759; stroke-miterlimit: 10; box-shadow: inset 0px 0px 0px #34c759; animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;">
+                            <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" style="stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 3; stroke-miterlimit: 10; stroke: #34c759; fill: none; animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;"/>
+                            <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" style="transform-origin: 50% 50%; stroke-dasharray: 48; stroke-dashoffset: 48; animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;"/>
+                        </svg>
+                    </div>
+                    <style>
+                        @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+                        @keyframes scale { 0%, 100% { transform: none; } 50% { transform: scale3d(1.1, 1.1, 1); } }
+                        @keyframes fill { 100% { box-shadow: inset 0px 0px 0px 30px rgba(52, 199, 89, 0.1); } }
+                    </style>
+
+                    <h2 style="font-size: 28px; font-weight: 600; margin-bottom: 8px;">Payment Successful</h2>
+                    <p style="color: #86868b; margin-bottom: 24px;">Your receipt has been securely verified.</p>
+                    <p style="font-size: 14px; color: #86868b;">Closing window automatically...</p>
+                </div>
+                <script>
+                    setTimeout(() => window.close(), 2000);
+                </script>
+            </body>
+        </html>
+    """)
+
+@app.get("/payment/cancel")
+async def payment_cancel(token: str):
+    payment_statuses[token] = "cancelled"
+    return HTMLResponse("""
+        <html>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; color: #fff; margin: 0;">
+                <div style="text-align: center;">
+                    <h2 style="font-size: 24px; font-weight: 600; color: #ff3b30; margin-bottom: 8px;">Payment Cancelled</h2>
+                    <p style="color: #86868b;">You can safely close this window.</p>
+                </div>
+            </body>
+        </html>
+    """)
