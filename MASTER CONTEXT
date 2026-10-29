@@ -1,44 +1,19 @@
-I am taking on the role of [Insert Your Role]. Please act as my senior pair-programmer for this specific role, keeping our whole architecture in mind. 
+# Ghost AI - Master Project Context
 
 ## 1. The Elevator Pitch 
-
-We are building "The Invisible Assistant"—an autonomous AI proxy that turns natural
-language to-do lists into scheduled errands and completed purchases. It parses messy 
-user requests, negotiates with a mock supplier database for time slots, and executes the
-final transaction using the PayPal Sandbox API. It also uses "humanized text" to interact
-with outside vendors, so they think they are talking to a human, not an AI. 
+We built **Ghost AI**—an autonomous AI proxy that turns natural language and voice dictation into scheduled errands, bookings, and completed purchases. Unlike standard chatbots, Ghost AI parses messy user requests, curates options through a stateful multi-turn scenario engine, and executes the final transaction using the PayPal Sandbox API. Packaged in a premium, Apple-inspired glassmorphism UI, it allows users to handle real-world logistics frictionlessly.
 
 ## 2. The Tech Stack 
+- **Frontend:** React (Vite) for a high-performance, animated chat interface.
+- **Backend:** Python (FastAPI) for high-speed REST API routes and Server-Sent Events (SSE).
+- **Voice Engine:** Web Speech API for native browser dictation.
+- **Payment Gateway:** PayPal Developer REST API (Orders/Checkout integration).
+- **Architecture Design:** Decoupled frontend/backend with real-time payment status polling and CORS management.
 
-- Frontend: React (or Next.js) for the chat interface.
-- Backend: Node.js (Express) or Python (FastAPI) for the REST API.
-- AI Engine: OpenAI or Anthropic API (utilizing function calling).
-- Payment Gateway: PayPal Developer REST API (Orders/Checkout).
-- Database: Local JSON file or SQLite (Mock supplier inventory).
-- Version Control: GitHub Desktop (Everyone works on separate files to avoid merge conflicts). 
+## 3. Team Roles (Two-Person Architecture)
 
-## 3. The 3 Team Roles
+### Role A: Lead Full-Stack & UI Engineer (Ziadelmoussa)
+- **Responsibilities:** Designed and engineered the entire client-facing application and its connection to the backend. Built the sleek, dark-mode glassmorphic UI, integrated the Web Speech API, handled frontend state management, and engineered the FastAPI backend's stateful scenario parsing and endpoint routing.
 
-### Role A: Frontend Developer (The Interface) 
-
-- Responsibilities: Build the web UI where the user types their errands. You will build a chat-
-like interface that displays the AI's responses and the final "Approve & Pay" checkout card. 
-
-- Focus: React components, state management, and making the UI look clean and responsive. 
-
-
-
-### Role B: AI & Data Engineer (The Brain) 
-
-- Responsibilities: Build the mock supplier JSON database and write the LLM prompts. You 
-will set up the "function calling" so the AI knows how to check the database, find available time slots, and ghostwrite humanized emails. 
-
-- Focus: Prompt engineering, logic loops, and formatting the AI's output so the backend can read it. 
-
-### Role C: Backend & Payment Integrator (The Engine)
-
-- Responsibilities: Build the core server that connects the frontend, the AI, and PayPal. You
-will receive the AI's final cart data, generate the proper POST requests, and handle the secure PayPal API checkout flow. 
-
-- Focus: REST APIs, server routing, and third-party API integration. 
-
+### Role B: Backend Contributor ([Enter Friend's Name/Username Here])
+- **Responsibilities:** Assisted with backend architecture and payment integration. Focused on establishing the core connection to the PayPal REST API, managing the OAuth token generation, and supporting initial routing logic.
