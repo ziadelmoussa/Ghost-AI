@@ -5,9 +5,12 @@ Ghost AI is an autonomous proxy application designed to process natural language
 
 Current conversational interfaces lack the capability to execute multi-step commercial transactions autonomously. Ghost AI bridges this gap by acting as an intermediary between unstructured user requests and strict third-party supplier logistics. The application parses complex requests, maintains session context, and executes mock commercial transactions.
 
-## Live Application
-The deployed application can be accessed here:
-- **Live Link:** https://ghost-ai-vvqd.vercel.app/
+## Live Application & Evaluation Guide
+The React client is deployed live, but it requires a local instance of the backend to process stateful tasks and payments. 
+
+- **Live Frontend:** https://ghost-ai-vvqd.vercel.app/
+
+**Important Evaluation Note:** To fully interact with the live frontend, you must start the FastAPI backend on your local machine. The deployed frontend is specifically configured to route API requests to `http://localhost:8000`.
 
 ## Architecture & Tech Stack
 The application utilizes a decoupled architecture, separating the client interface from a stateful transaction processing engine.
@@ -25,16 +28,16 @@ The application utilizes a decoupled architecture, separating the client interfa
 
 ---
 
-## Local Development Setup
+## Local Backend Setup
 
-To run the application locally for testing or development, follow the steps below.
+To evaluate the application, please follow these steps to initialize the backend processing engine.
 
 ### Prerequisites
 - Python (3.9 or higher)
-- Node.js (v18.0 or higher)
+- Node.js (v18.0 or higher) - *Only required if running the frontend locally*
 - PayPal Developer Sandbox Account (Client ID and Secret)
 
-### Installation
+### Installation & Execution
 
 **1. Clone the repository:**
 ```bash
@@ -65,14 +68,17 @@ Ensure you are in the `backend` directory, then execute:
 uvicorn main:app --reload --port 8000
 ```
 
-**5. Setup and Start the React Frontend:**
-Open a new terminal window, navigate to the `frontend` directory, and start the development server:
+**5. Access the Application (Two Options):**
+
+**Option A (Recommended):** Leave the backend running in your terminal and open the live frontend at `https://ghost-ai-vvqd.vercel.app/`. It will automatically connect to your local backend.
+
+**Option B (Fully Local):** Open a new terminal window, navigate to the `frontend` directory, and start the local development server:
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Navigate to `http://localhost:5173` in your browser to access the local instance.
+Navigate to `http://localhost:5173` in your browser.
 
 ---
 
