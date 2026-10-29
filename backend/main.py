@@ -4,16 +4,17 @@ import asyncio
 import re
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse, HTMLResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
-from fastapi.responses import StreamingResponse 
-from fastapi.responses import StreamingResponse, HTMLResponse
 
+# Load environment variables prior to local module imports
 load_dotenv()
 from payments import create_paypal_order
 
-app = FastAPI(title="The Invisible Assistant API (Stateful Demo Engine)")
+app = FastAPI(title="Ghost AI - Stateful Core Engine")
 
+# Configure Cross-Origin Resource Sharing (CORS) for decoupled frontend integration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -22,7 +23,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Pydantic Models ---
+# --- Pydantic Data Models ---
+
 class TaskRequest(BaseModel):
     user_prompt: str
     session_id: str
@@ -32,12 +34,15 @@ class CheckoutRequest(BaseModel):
     item_name: str
     session_id: str
 
-# In-memory session and payment storage
+# --- In-Memory State Management ---
+# For production, migrate to Redis or PostgreSQL. Maintained in-memory for hackathon zero-latency demonstration.
 sessions_db = {}
 payment_statuses = {}
 
-# --- HELPER PARSERS ---
+# --- Utility Parsers ---
+
 def clean_city_string(city_str: str) -> str:
+    """Sanitizes extracted location data from natural language prompts."""
     return re.sub(
         r'\s+(for|next|this|on|tomorrow|weekend|today|next week|next month|cheap|flights|flight|ticket).*$', 
         '', 
@@ -46,6 +51,7 @@ def clean_city_string(city_str: str) -> str:
     ).strip()
 
 def get_or_create_session(session_id: str) -> dict:
+    """Retrieves or initializes a user session with default mock inventory parameters."""
     if session_id not in sessions_db:
         sessions_db[session_id] = {
             "history": [],
@@ -57,12 +63,18 @@ def get_or_create_session(session_id: str) -> dict:
         }
     return sessions_db[session_id]
 
-# --- STATEFUL SCENARIO ENGINE ---
+# --- Core Stateful Scenario Engine ---
+
 def process_stateful_prompt(prompt: str, session: dict) -> dict:
+    """
+    Parses natural language input and routes it through contextual scenario pipelines.
+    Returns a standardized dictionary containing the AI response and dynamic checkout options.
+    """
     prompt_raw = prompt.strip()
     prompt_lower = prompt_raw.lower()
     clean_alpha = re.sub(r'[^a-zA-Z0-9\s]', '', prompt_lower).strip()
 
+    # 1. Base Conversational Handlers
     if len(clean_alpha) < 2 and clean_alpha not in ["hi"]:
         return {
             "ai_response": "I didn't quite catch that. Could you please specify how I can assist with your errand?",
@@ -88,10 +100,7 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
             "options": []
         }
 
-    # -------------------------------------------------------------
-    # 2. ACTIVE SCENARIO CHECKOUT / CONVERSATIONAL CONFIRMATION
-    # -------------------------------------------------------------
-    # This now catches "first option", "I like this", "sounds good", etc.
+    # 2. Active Scenario Checkout Confirmation
     confirm_keywords = [
         "pay", "checkout", "book", "confirm", "take it", "buy", "proceed", 
         "select", "yes", "let me pay", "first", "second", "option", "i like", 
@@ -99,15 +108,12 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
     ]
     is_bill_explicit = any(b in prompt_lower for b in ["water", "electric", "electricity", "stc", "utility", "bill"])
 
-    # Only trigger checkout if we are already in a scenario AND the user confirms
     if session["active_scenario"] and any(k in prompt_lower for k in confirm_keywords) and not is_bill_explicit:
         scenario = session["active_scenario"]
         
         if scenario == "flight":
             origin = session.get("flight_origin", "Dammam")
             destination = session.get("flight_destination", "New York")
-            
-            # Make it look smart: adjust price based on whether they said "first" or "second"
             selected_rate = 890.00 if "second" in prompt_lower else 1150.00
             
             return {
@@ -147,9 +153,7 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
                 ]
             }
 
-    # -------------------------------------------------------------
-    # SCENARIO 1: GROCERIES
-    # -------------------------------------------------------------
+    # 3. Scenario Pipeline: Groceries
     grocery_triggers = ["grocery", "groceries", "order", "food", "milk", "bread", "pantry", "basket", "add to the list", "add to list"]
     is_grocery_action = any(k in prompt_lower for k in grocery_triggers) or (session["active_scenario"] == "grocery" and any(k in prompt_lower for k in ["add", "item", "more", "also", "include"]))
 
@@ -158,12 +162,12 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
 
         if any(k in prompt_lower for k in ["add", "include", "put", "also"]):
             new_additions = []
-            
             common_items = {
                 "cheese": 3.50, "chocolate": 2.50, "apples": 4.00, "water": 1.50, 
                 "chicken": 8.00, "rice": 5.00, "tomatoes": 3.00, "sugar": 2.00, 
                 "coffee": 6.00, "tea": 4.50, "bananas": 2.00, "beef": 12.00
             }
+            
             for item, price in common_items.items():
                 if item in prompt_lower:
                     formatted_item = item.title()
@@ -187,18 +191,8 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
             return {
                 "ai_response": f"Updated your grocery basket.{added_text} Current list: {items_str}.",
                 "options": [
-                    {
-                        "id": 1,
-                        "name": f"GreenThumb Express Basket ({len(session['grocery_items'])} Items)",
-                        "rate": round(session["grocery_total"], 2),
-                        "time": "Delivery in 30 mins"
-                    },
-                    {
-                        "id": 2,
-                        "name": f"Panda Supermarket Direct ({len(session['grocery_items'])} Items)",
-                        "rate": round(session["grocery_total"] - 2.50, 2),
-                        "time": "Delivery in 55 mins"
-                    }
+                    {"id": 1, "name": f"GreenThumb Express Basket ({len(session['grocery_items'])} Items)", "rate": round(session["grocery_total"], 2), "time": "Delivery in 30 mins"},
+                    {"id": 2, "name": f"Panda Supermarket Direct ({len(session['grocery_items'])} Items)", "rate": round(session["grocery_total"] - 2.50, 2), "time": "Delivery in 55 mins"}
                 ]
             }
         else:
@@ -206,24 +200,12 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
             return {
                 "ai_response": f"I've compiled your weekly grocery basket ({items_str}). Here are the delivery options.",
                 "options": [
-                    {
-                        "id": 1,
-                        "name": "GreenThumb Express Delivery",
-                        "rate": round(session["grocery_total"], 2),
-                        "time": "Delivery in 35 mins"
-                    },
-                    {
-                        "id": 2,
-                        "name": "Panda Supermarket Direct",
-                        "rate": round(session["grocery_total"] - 2.50, 2),
-                        "time": "Delivery in 60 mins"
-                    }
+                    {"id": 1, "name": "GreenThumb Express Delivery", "rate": round(session["grocery_total"], 2), "time": "Delivery in 35 mins"},
+                    {"id": 2, "name": "Panda Supermarket Direct", "rate": round(session["grocery_total"] - 2.50, 2), "time": "Delivery in 60 mins"}
                 ]
             }
 
-    # -------------------------------------------------------------
-    # SCENARIO 2: FLIGHTS & TRAVEL
-    # -------------------------------------------------------------
+    # 4. Scenario Pipeline: Flights & Travel
     flight_triggers = ["flight", "fly", "trip", "travel", "plane", "ticket", "airline", "dubai", "new york", "london"]
     is_flight_action = any(k in prompt_lower for k in flight_triggers) or (session["active_scenario"] == "flight" and any(k in prompt_lower for k in ["cheaper", "business", "first class", "change", "date"]))
 
@@ -251,42 +233,26 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
         is_long_haul = any(c in origin.lower() for c in long_haul_cities) or any(c in destination.lower() for c in long_haul_cities)
 
         if "business" in prompt_lower:
-            rate_1, rate_2 = 3200.00, 2850.00
-            class_label = "Business Class"
+            rate_1, rate_2, class_label = 3200.00, 2850.00, "Business Class"
         elif is_long_haul:
-            rate_1, rate_2 = 1150.00, 890.00
-            class_label = "Economy"
+            rate_1, rate_2, class_label = 1150.00, 890.00, "Economy"
         else:
-            rate_1, rate_2 = 380.00, 295.00
-            class_label = "Economy"
+            rate_1, rate_2, class_label = 380.00, 295.00, "Economy"
 
         return {
             "ai_response": f"I found available {class_label} routes for {origin} to {destination}. Here are the top available bookings.",
             "options": [
-                {
-                    "id": 1,
-                    "name": f"Emirates Direct ({origin} to {destination})",
-                    "rate": rate_1,
-                    "time": "Departs Sat at 11:30 AM"
-                },
-                {
-                    "id": 2,
-                    "name": f"Saudia Express ({origin} to {destination})",
-                    "rate": rate_2,
-                    "time": "Departs Sat at 04:15 PM"
-                }
+                {"id": 1, "name": f"Emirates Direct ({origin} to {destination})", "rate": rate_1, "time": "Departs Sat at 11:30 AM"},
+                {"id": 2, "name": f"Saudia Express ({origin} to {destination})", "rate": rate_2, "time": "Departs Sat at 04:15 PM"}
             ]
         }
 
-    # -------------------------------------------------------------
-    # SCENARIO 3: PLUMBING & HOME REPAIRS
-    # -------------------------------------------------------------
+    # 5. Scenario Pipeline: Plumbing & Home Repairs
     plumbing_triggers = ["plumber", "plumbing", "sink", "fix", "leak", "repair", "pipe", "handyman", "ac", "electrician"]
     is_plumbing_action = any(k in prompt_lower for k in plumbing_triggers) or (session["active_scenario"] == "plumber" and any(k in prompt_lower for k in ["cheaper", "later", "evening", "morning", "slot"]))
 
     if is_plumbing_action:
         session["active_scenario"] = "plumber"
-
         time_slot_1 = "Tomorrow at 06:00 PM" if "evening" in prompt_lower else "Tomorrow at 10:00 AM"
         time_slot_2 = "Tomorrow at 08:00 PM" if "evening" in prompt_lower else "Tomorrow at 02:00 PM"
 
@@ -298,24 +264,12 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
         return {
             "ai_response": f"I contacted licensed technicians in Dammam for your {repair_type}. Here are the confirmed time slots.",
             "options": [
-                {
-                    "id": 1,
-                    "name": "QuickFix Emergency Services",
-                    "rate": 45.00,
-                    "time": time_slot_1
-                },
-                {
-                    "id": 2,
-                    "name": "Elite Pro Repair Masters",
-                    "rate": 65.00,
-                    "time": time_slot_2
-                }
+                {"id": 1, "name": "QuickFix Emergency Services", "rate": 45.00, "time": time_slot_1},
+                {"id": 2, "name": "Elite Pro Repair Masters", "rate": 65.00, "time": time_slot_2}
             ]
         }
 
-    # -------------------------------------------------------------
-    # SCENARIO 4: BILL PAYMENTS
-    # -------------------------------------------------------------
+    # 6. Scenario Pipeline: Bill Payments
     bill_triggers = ["bill", "internet bill", "utility bill", "electric bill", "water bill", "stc", "mobily", "electricity"]
     if any(k in prompt_lower for k in bill_triggers):
         session["active_scenario"] = "bill"
@@ -325,27 +279,18 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
         return {
             "ai_response": f"I've fetched your verified account statement for {provider}. Here is your total outstanding balance.",
             "options": [
-                {
-                    "id": 1,
-                    "name": f"{provider} Balance Settlement",
-                    "rate": amount,
-                    "time": "Instant Processing"
-                }
+                {"id": 1, "name": f"{provider} Balance Settlement", "rate": amount, "time": "Instant Processing"}
             ]
         }
 
-    # -------------------------------------------------------------
-    # GENERAL CONVERSATIONAL QUESTIONS
-    # -------------------------------------------------------------
+    # 7. General Inquiry Routing
     if any(prompt_lower.startswith(q) for q in ["how much", "why", "can you", "where is", "what is"]):
         return {
             "ai_response": "I can certainly look into that for you. What specific provider, city, or service details should I check?",
             "options": []
         }
 
-    # -------------------------------------------------------------
-    # INTELLIGENT ACTIONABLE FALLBACK
-    # -------------------------------------------------------------
+    # 8. Intelligent Actionable Fallback
     clean_task = prompt_raw.capitalize() if len(prompt_raw) < 35 else prompt_raw[:32] + "..."
     return {
         "ai_response": f"I analyzed your request for '{clean_task}'. Here are verified providers available to execute this task immediately.",
@@ -355,10 +300,11 @@ def process_stateful_prompt(prompt: str, session: dict) -> dict:
         ]
     }
 
-# --- ENDPOINTS ---
+# --- REST API Endpoints ---
 
 @app.post("/api/process-task")
 def process_task(request: TaskRequest):
+    """Synchronous endpoint for processing standard text inputs."""
     session = get_or_create_session(request.session_id)
     session["history"].append({"role": "user", "content": request.user_prompt})
 
@@ -374,6 +320,7 @@ def process_task(request: TaskRequest):
 
 @app.get("/api/stream-task")
 async def stream_task(user_prompt: str, session_id: str):
+    """Asynchronous Server-Sent Events (SSE) endpoint for simulating real-time processing states."""
     session = get_or_create_session(session_id)
     session["history"].append({"role": "user", "content": user_prompt})
 
@@ -408,10 +355,8 @@ async def stream_task(user_prompt: str, session_id: str):
     )
 
 @app.post("/api/voice-task")
-async def process_voice_task(
-    audio_file: UploadFile = File(...), 
-    session_id: str = Form(...) 
-):
+async def process_voice_task(audio_file: UploadFile = File(...), session_id: str = Form(...)):
+    """Handles multipart/form-data for voice transcriptions."""
     await asyncio.sleep(2.0)
     session = get_or_create_session(session_id)
     mock_transcription = "Book a plumber to fix my kitchen sink tomorrow"
@@ -428,8 +373,11 @@ async def process_voice_task(
         "options": ai_data["options"]
     }
 
+# --- Payment & Checkout Routes ---
+
 @app.post("/api/checkout")
 async def process_checkout(request: CheckoutRequest):
+    """Initializes a secure PayPal checkout session."""
     try:
         paypal_response = create_paypal_order(request.cart_total)
         order_id = paypal_response["order_data"]["id"]
@@ -449,22 +397,19 @@ async def process_checkout(request: CheckoutRequest):
 
 @app.get("/payment/status/{order_id}")
 async def check_payment_status(order_id: str):
+    """Frontend polling endpoint to verify transaction state."""
     status = payment_statuses.get(order_id, "pending")
     return {"status": status}
 
-
-
 @app.get("/payment/success")
 async def payment_success(token: str):
-    # FIX: Changed to "paid" so the React frontend polling triggers the receipt card immediately!
+    """Callback URL triggered by PayPal upon successful authorization."""
     payment_statuses[token] = "paid"
     
     return HTMLResponse("""
         <html>
             <body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; color: #fff; margin: 0;">
                 <div style="text-align: center;">
-                    
-                    <!-- Animated Green Checkmark -->
                     <div style="display: flex; justify-content: center; margin-bottom: 24px;">
                         <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" style="width: 72px; height: 72px; border-radius: 50%; display: block; stroke-width: 3; stroke: #34c759; stroke-miterlimit: 10; box-shadow: inset 0px 0px 0px #34c759; animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;">
                             <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" style="stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 3; stroke-miterlimit: 10; stroke: #34c759; fill: none; animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;"/>
@@ -476,7 +421,6 @@ async def payment_success(token: str):
                         @keyframes scale { 0%, 100% { transform: none; } 50% { transform: scale3d(1.1, 1.1, 1); } }
                         @keyframes fill { 100% { box-shadow: inset 0px 0px 0px 30px rgba(52, 199, 89, 0.1); } }
                     </style>
-
                     <h2 style="font-size: 28px; font-weight: 600; margin-bottom: 8px;">Payment Successful</h2>
                     <p style="color: #86868b; margin-bottom: 24px;">Your receipt has been securely verified.</p>
                     <p style="font-size: 14px; color: #86868b;">Closing window automatically...</p>
@@ -490,6 +434,7 @@ async def payment_success(token: str):
 
 @app.get("/payment/cancel")
 async def payment_cancel(token: str):
+    """Callback URL triggered by PayPal if the user aborts checkout."""
     payment_statuses[token] = "cancelled"
     return HTMLResponse("""
         <html>

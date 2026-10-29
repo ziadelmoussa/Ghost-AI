@@ -4,7 +4,7 @@ import Onboarding from './components/Onboarding';
 import Layout from './components/Layout';
 import './App.css';
 
-// --- PRE-SAVED DEMO CHATS ---
+// --- DEMO MOCK DATA ---
 const PRE_SAVED_DEMO_CHATS = [
   {
     id: 'demo-plumber',
@@ -67,12 +67,11 @@ const PRE_SAVED_DEMO_CHATS = [
   }
 ];
 
-function App() {
+export default function App() {
   const [sessionId, setSessionId] = useState(null);
   const [activeDemoMessages, setActiveDemoMessages] = useState([]);
 
   const handleDemoLogin = () => {
-    // Generates a fresh, empty session every time you log in
     const mockSession = "demo_judge_" + Math.random().toString(36).substring(2, 9);
     setSessionId(mockSession);
     setActiveDemoMessages([]); 
@@ -83,7 +82,6 @@ function App() {
     setActiveDemoMessages([]);
   };
 
-  // Function to let the sidebar change the active chat
   const handleSelectChat = (chatId, messages) => {
     setSessionId(chatId);
     setActiveDemoMessages(messages);
@@ -102,7 +100,7 @@ function App() {
           onNewChat={handleDemoLogin}
         >
           <ChatInterface 
-            key={sessionId} // Forces ChatInterface to wipe clean when switching chats
+            key={sessionId}
             sessionId={sessionId} 
             initialMessages={activeDemoMessages}
           />
@@ -111,5 +109,3 @@ function App() {
     </>
   );
 }
-
-export default App;

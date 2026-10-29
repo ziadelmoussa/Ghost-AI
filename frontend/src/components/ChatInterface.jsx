@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { sendTaskRequest, sendCheckoutRequest, checkPaymentStatus } from '../services/api';
 import './ChatInterface.css'; 
 
+// --- SVG Icons ---
 const MicIcon = () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
@@ -99,23 +100,21 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
     const inputRef = useRef(null); 
     const recognitionRef = useRef(null);
     const transcriptRef = useRef('');
-    const isStoppingRef = useRef(false); // Prevents trailing speech events from resetting the input
+    const isStoppingRef = useRef(false);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isLoading]);
 
     useEffect(() => {
-        if (!isLoading) {
-            inputRef.current?.focus();
-        }
+        if (!isLoading) inputRef.current?.focus();
     }, [isLoading]);
 
     useEffect(() => {
         if (onMessagesChange) onMessagesChange(messages);
     }, [messages, onMessagesChange]);
 
-    // Initialize Web Speech API on mount
+    // Initialize Web Speech API
     useEffect(() => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRecognition) {
@@ -124,7 +123,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
             recognition.interimResults = true;
             
             recognition.onresult = (event) => {
-                if (isStoppingRef.current) return; // Ignore late results after stop
+                if (isStoppingRef.current) return;
                 let currentTranscript = '';
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     currentTranscript += event.results[i][0].transcript;
@@ -138,9 +137,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
                 setIsRecording(false);
             };
 
-            recognition.onend = () => {
-                setIsRecording(false);
-            };
+            recognition.onend = () => setIsRecording(false);
 
             recognitionRef.current = recognition;
         }
@@ -160,7 +157,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
         setIsLoading(true);
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 2500)); // 2.5s thinking delay
+            await new Promise(resolve => setTimeout(resolve, 2500)); 
             const data = await sendTaskRequest(textToSubmit, sessionId);
             setMessages((prev) => [...prev, { role: 'ai', content: data.ai_response, options: data.options }]);
         } catch (error) {
@@ -182,17 +179,15 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
         }
 
         if (isRecording) {
-            isStoppingRef.current = true; // Flag that we are stopping
+            isStoppingRef.current = true;
             recognitionRef.current.stop();
             setIsRecording(false);
             
             const textToSend = transcriptRef.current;
             transcriptRef.current = '';
-            setInput(''); // Clear input immediately
+            setInput(''); 
 
-            if (textToSend.trim()) {
-                submitText(textToSend);
-            }
+            if (textToSend.trim()) submitText(textToSend);
         } else {
             isStoppingRef.current = false;
             transcriptRef.current = '';
@@ -236,6 +231,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
             return newMessages;
         });
 
+        // Polling Mechanism for Payment Verification
         const checkInterval = setInterval(async () => {
             const tokenMatch = link.match(/token=([^&]+)/);
             const token = orderId || (tokenMatch ? tokenMatch[1] : null);
@@ -247,7 +243,6 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
 
             try {
                 const status = await checkPaymentStatus(token);
-                
                 if (status === 'paid') {
                     clearInterval(checkInterval);
                     setMessages((prev) => {

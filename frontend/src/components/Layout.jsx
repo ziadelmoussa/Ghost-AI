@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './Layout.css';
 
+/**
+ * Generates a fresh, empty session shell for new errands.
+ */
 const generateEmptySession = () => ({
     id: Date.now(),
     title: "New Errand",
@@ -12,6 +15,7 @@ export default function Layout({ children, onLogout }) {
     const [theme, setTheme] = useState('dark');
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+    // Initialize state with pre-populated hackathon demo scenarios
     const [sessions, setSessions] = useState(() => {
         const freshSession = generateEmptySession();
         return [
@@ -107,6 +111,7 @@ export default function Layout({ children, onLogout }) {
     const [activeSessionId, setActiveSessionId] = useState(sessions[0].id);
     const [chatKey, setChatKey] = useState(0);
 
+    // Sync theme toggle with root document element
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
     }, [theme]);
@@ -149,6 +154,7 @@ export default function Layout({ children, onLogout }) {
 
     const activeSession = sessions.find(s => s.id === activeSessionId) || sessions[0];
 
+    // Dynamically inject state management props into the child ChatInterface component
     const childrenWithProps = React.Children.map(children, child => {
         if (React.isValidElement(child)) {
             return React.cloneElement(child, { 
