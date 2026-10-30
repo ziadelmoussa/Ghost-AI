@@ -1,5 +1,8 @@
-// Local FastAPI server endpoint. Update this URL if deploying to Render.
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
+// Automatically uses Render in production, and localhost when running locally!
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+
+// Extract the root server URL (stripping out '/api' if present) for non-api routes like payment status
+const SERVER_BASE_URL = API_BASE_URL.replace(/\/api$/, '');
 
 /**
  * Sends natural language text prompts to the stateful engine.
@@ -63,7 +66,7 @@ export const sendVoiceRequest = async (audioBlob, sessionId) => {
  */
 export const checkPaymentStatus = async (orderId) => {
     try {
-        const response = await fetch(`http://localhost:8000/payment/status/${orderId}`);
+        const response = await fetch(`${SERVER_BASE_URL}/payment/status/${orderId}`);
         const data = await response.json();
         return data.status; 
     } catch (error) {
