@@ -226,7 +226,8 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
     };
 
     const handlePaymentClick = (msgIndex, link, orderId) => {
-        window.open(link, '_blank');
+        // Direct navigation to bypass popup blockers and safely send user to PayPal Sandbox
+        window.location.href = link;
         
         setMessages((prev) => {
             const newMessages = [...prev];
