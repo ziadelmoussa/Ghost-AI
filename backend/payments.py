@@ -44,6 +44,7 @@ def create_paypal_order(amount: str, currency: str = "USD") -> dict:
             }
         ],
         "application_context": {
+            "locale": "en-US",
             "return_url": "http://localhost:8000/payment/success",
             "cancel_url": "http://localhost:8000/payment/cancel"
         }
@@ -54,5 +55,10 @@ def create_paypal_order(amount: str, currency: str = "USD") -> dict:
     if response.status_code in [200, 201]: 
         order_data = response.json()
         approval_link = next((link["href"] for link in order_data.get("links", []) if link["rel"] == "approve"), None)
+        
+        # The ultimate override: force English via the URL parameter
+        if approval_link:
+            approval_link += "&locale.x=en_US"
+            
         return {"order_data": order_data, "approval_link": approval_link}
     raise Exception(f"Failed to create PayPal order: {response.text}")

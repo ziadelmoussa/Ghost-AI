@@ -235,7 +235,7 @@
     color: var(--accent-color);
     text-decoration: none;
     font-weight: 600;
-    display: inline-block;
+    display: inline-order;
     margin-top: 4px;
 }
 .payment-link:hover { text-decoration: underline; }
@@ -409,4 +409,54 @@
     color: var(--text-primary);
     margin-top: 6px;
     letter-spacing: -0.5px;
+}
+
+/* --- MOBILE SPECIFIC OVERRIDES --- */
+@media (max-width: 768px) {
+    .suggestions-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        padding: 0 !important; 
+    }
+    
+    .suggestion-card {
+        width: 100% !important;
+    }
+
+    /* Safe-area bottom padding ensures input box floats nicely above home bar */
+    .input-form {
+        width: 100% !important;
+        padding: 8px 12px !important;
+        gap: 8px !important;
+        margin-bottom: max(16px, env(safe-area-inset-bottom)) !important; 
+    }
+    
+    .chat-window {
+        padding-bottom: 30px !important;
+        overflow-x: hidden !important;
+    }
+
+    .chat-input {
+        font-size: 16px !important; 
+        flex: 1 !important;
+    }
+
+    .mic-text {
+        display: none !important; 
+    }
+    
+    .btn-mic, .btn-send {
+        height: 40px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 14px !important;
+    }
+
+    .btn-mic {
+        width: 40px !important;
+        padding: 0 !important;
+        flex-shrink: 0 !important;
+    }
 }

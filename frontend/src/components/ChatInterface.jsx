@@ -63,7 +63,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
     
     const textUI = {
         greeting: `Hello Ziad! I'm ready to assist. What errand or task would you like me to handle for you today?`,
-        placeholder: "Type an errand or tap mic to talk...",
+        placeholder: "Type an errand...",
         listening: "Listening...",
         tapToTalk: "Tap to Talk",
         tapToStop: "Stop & Send",
@@ -103,18 +103,21 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
     const isStoppingRef = useRef(false);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        if (messages.length > 1 || isLoading) {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }
     }, [messages, isLoading]);
 
     useEffect(() => {
-        if (!isLoading) inputRef.current?.focus();
+        if (!isLoading && window.innerWidth > 768) {
+            inputRef.current?.focus();
+        }
     }, [isLoading]);
 
     useEffect(() => {
         if (onMessagesChange) onMessagesChange(messages);
     }, [messages, onMessagesChange]);
 
-    // Initialize Web Speech API
     useEffect(() => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRecognition) {
@@ -231,7 +234,6 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
             return newMessages;
         });
 
-        // Polling Mechanism for Payment Verification
         const checkInterval = setInterval(async () => {
             const tokenMatch = link.match(/token=([^&]+)/);
             const token = orderId || (tokenMatch ? tokenMatch[1] : null);
@@ -372,11 +374,16 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
                 <button 
                     type="button" 
                     onClick={toggleRecording} 
-                    className="btn-send" 
-                    style={{ backgroundColor: isRecording ? '#ff3b30' : 'var(--surface-hover)', color: isRecording ? '#fff' : 'var(--text-primary)', width: '160px', border: '1px solid var(--border-color)', cursor: 'pointer' }}
+                    className="btn-send btn-mic" 
+                    style={{ 
+                        backgroundColor: isRecording ? '#ff3b30' : 'var(--surface-hover)', 
+                        color: isRecording ? '#fff' : 'var(--text-primary)', 
+                        border: '1px solid var(--border-color)', 
+                        cursor: 'pointer' 
+                    }}
                 >
                     <MicIcon />
-                    {isRecording ? textUI.tapToStop : textUI.tapToTalk}
+                    <span className="mic-text">{isRecording ? textUI.tapToStop : textUI.tapToTalk}</span>
                 </button>
 
                 <button type="submit" disabled={isLoading || isRecording || !input.trim()} className="btn-send">

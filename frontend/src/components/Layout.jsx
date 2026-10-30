@@ -13,7 +13,7 @@ const generateEmptySession = () => ({
 
 export default function Layout({ children, onLogout }) {
     const [theme, setTheme] = useState('dark');
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768);
 
     // Initialize state with pre-populated hackathon demo scenarios
     const [sessions, setSessions] = useState(() => {

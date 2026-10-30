@@ -1,5 +1,40 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+*, *::before, *::after {
+    box-sizing: border-box !important; 
+}
+
+html, body {
+    width: 100vw;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden !important;
+    position: fixed;
+    inset: 0;
+    overscroll-behavior: none;
+}
+
+#root {
+    width: 100vw;
+    height: 100dvh;
+    overflow: hidden !important;
+}
+
+.app-layout {
+    height: 100dvh !important;
+    width: 100vw !important;
+    overflow: hidden !important;
+}
+
+.content-area {
+    overflow-y: auto !important;
+    overflow-x: hidden !important; 
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
 :root {
   /* Dark Mode - Apple WWDC Theme */
   --bg-app: #000000; /* Pure OLED Black */
@@ -121,8 +156,8 @@ body {
     font-size: 18px;
   }
   
-  .onboarding-wrapper {
-    padding: 20px 16px;
+  .onboarding-wrapper, .auth-modal {
+    padding-bottom: max(40px, env(safe-area-inset-bottom)) !important;
   }
 }
 
