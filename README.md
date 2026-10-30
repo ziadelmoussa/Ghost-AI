@@ -87,3 +87,4 @@ Navigate to `http://localhost:5173` in your browser.
 
 - **Ziadelmoussa** — Lead Full-Stack Engineer (Architecture, UI/UX Design, Frontend React/Vite, Backend FastAPI Integration)
 - **HussianYKB** — Backend Contributor (Payment logic & routing support)
+- **Yaraabouali** — QA & Mobile Testing (iOS/Safari layout validation, PWA testing)

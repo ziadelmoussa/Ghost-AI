@@ -1,19 +1,43 @@
 # Ghost AI - Master Project Context
 
+
+
 ## 1. The Elevator Pitch 
-We built **Ghost AI**—an autonomous AI proxy that turns natural language and voice dictation into scheduled errands, bookings, and completed purchases. Unlike standard chatbots, Ghost AI parses messy user requests, curates options through a stateful multi-turn scenario engine, and executes the final transaction using the PayPal Sandbox API. Packaged in a premium, Apple-inspired glassmorphism UI, it allows users to handle real-world logistics frictionlessly.
+
+We built Ghost AI—an autonomous AI proxy that turns natural language and voice dictation into scheduled errands, bookings, and completed purchases. Unlike standard chatbots, Ghost AI parses messy user requests, curates options through a stateful multi-turn scenario engine, and executes the final transaction using the PayPal Sandbox API. Packaged in a premium, Apple-inspired glassmorphism UI, it allows users to handle real-world logistics frictionlessly.
+
+
 
 ## 2. The Tech Stack 
-- **Frontend:** React (Vite) for a high-performance, animated chat interface.
-- **Backend:** Python (FastAPI) for high-speed REST API routes and Server-Sent Events (SSE).
-- **Voice Engine:** Web Speech API for native browser dictation.
-- **Payment Gateway:** PayPal Developer REST API (Orders/Checkout integration).
-- **Architecture Design:** Decoupled frontend/backend with real-time payment status polling and CORS management.
 
-## 3. Team Roles (Two-Person Architecture)
+- Frontend: React (Vite) for a high-performance, animated chat interface.
 
-### Role A: Lead Full-Stack & UI Engineer (Ziadelmoussa)
-- **Responsibilities:** Designed and engineered the entire client-facing application and its connection to the backend. Built the sleek, dark-mode glassmorphic UI, integrated the Web Speech API, handled frontend state management, and engineered the FastAPI backend's stateful scenario parsing and endpoint routing.
+- Backend: Python (FastAPI) for high-speed REST API routes and Server-Sent Events (SSE).
 
-### Role B: Backend Contributor ([Enter Friend's Name/Username Here])
-- **Responsibilities:** Assisted with backend architecture and payment integration. Focused on establishing the core connection to the PayPal REST API, managing the OAuth token generation, and supporting initial routing logic.
+- Voice Engine: Web Speech API for native browser dictation.
+
+- Payment Gateway: PayPal Developer REST API (Orders/Checkout integration).
+
+- Architecture Design: Decoupled frontend/backend with real-time payment status polling and CORS management.
+
+
+
+## 3. Team Roles & Contributors
+
+
+
+### Ziadelmoussa — Lead Full-Stack Engineer
+
+- Responsibilities: Designed and engineered the entire client-facing application and its connection to the backend. Built the sleek, dark-mode glassmorphic UI, integrated the Web Speech API, handled frontend state management, and engineered the FastAPI backend's stateful scenario parsing and endpoint routing.
+
+
+
+### HussianYKB — Backend Contributor
+
+- Responsibilities: Payment logic and routing support.
+
+
+
+### Yaraabouali — QA & Mobile Tester
+
+- Responsibilities: QA and mobile testing, including iOS/Safari layout validation and PWA testing.
