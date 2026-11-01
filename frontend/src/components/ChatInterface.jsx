@@ -206,15 +206,18 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
         
         try {
             const data = await sendCheckoutRequest(option.rate, option.name, sessionId);
+            // Extracts approval_link from the backend response structure
+            const paypalUrl = data.approval_link || data.payment_link || data.link;
+
             const paymentMessage = { 
                 role: 'ai', 
                 content: textUI.checkoutMsg,
                 paymentDetails: { 
-                    item: data.item, 
-                    amount: data.received_amount, 
-                    link: data.payment_link, 
+                    item: data.item || option.name, 
+                    amount: data.received_amount || option.rate, 
+                    link: paypalUrl, 
                     status: 'pending',
-                    orderId: data.order_id 
+                    orderId: data.order_id || data.order_data?.id 
                 }
             };
             setMessages((prev) => [...prev, paymentMessage]);
