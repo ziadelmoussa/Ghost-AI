@@ -206,18 +206,16 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
         
         try {
             const data = await sendCheckoutRequest(option.rate, option.name, sessionId);
-            // Extracts approval_link from the backend response structure
-            const paypalUrl = data.approval_link || data.payment_link || data.link;
-
+            
             const paymentMessage = { 
                 role: 'ai', 
                 content: textUI.checkoutMsg,
                 paymentDetails: { 
-                    item: data.item || option.name, 
-                    amount: data.received_amount || option.rate, 
-                    link: paypalUrl, 
+                    item: data.item, 
+                    amount: data.received_amount, 
+                    link: data.payment_link, 
                     status: 'pending',
-                    orderId: data.order_id || data.order_data?.id 
+                    orderId: data.order_id 
                 }
             };
             setMessages((prev) => [...prev, paymentMessage]);
@@ -229,14 +227,12 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
     };
 
     const handlePaymentClick = (msgIndex, link, orderId) => {
-        // Open a blank tab synchronously to prevent popup blocking
-        const paypalWindow = window.open('about:blank', '_blank');
-
-        if (paypalWindow) {
-            paypalWindow.location.href = link;
-        } else {
-            window.location.href = link;
-        }
+        // Force open in a new tab using a hidden HTML link bypass to clear strict browser popup blockers
+        Object.assign(document.createElement('a'), {
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            href: link,
+        }).click();
         
         setMessages((prev) => {
             const newMessages = [...prev];
@@ -257,11 +253,6 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
                 const status = await checkPaymentStatus(token);
                 if (status === 'paid') {
                     clearInterval(checkInterval);
-                    
-                    if (paypalWindow && !paypalWindow.closed) {
-                        paypalWindow.close();
-                    }
-
                     setMessages((prev) => {
                         const newMessages = [...prev];
                         if (newMessages[msgIndex]) {

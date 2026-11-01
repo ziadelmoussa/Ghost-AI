@@ -6,9 +6,6 @@ PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID", "mock_client_id")
 PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET", "mock_client_secret")
 PAYPAL_API_BASE = os.getenv("PAYPAL_API_BASE", "https://api-m.sandbox.paypal.com")
 
-# Hardcoded live Vercel URL as fallback to prevent redirecting users to localhost
-FRONTEND_URL = os.getenv("FRONTEND_URL", "https://ghost-ai-vvqd.vercel.app")
-
 def get_paypal_access_token() -> str:
     """Authenticates with PayPal REST API to retrieve a short-lived bearer token."""
     url = f"{PAYPAL_API_BASE}/v1/oauth2/token"
@@ -48,8 +45,8 @@ def create_paypal_order(amount: str, currency: str = "USD") -> dict:
         ],
         "application_context": {
             "locale": "en-US",
-            "return_url": FRONTEND_URL,
-            "cancel_url": FRONTEND_URL
+            "return_url": "https://ghost-ai-qjag.onrender.com/payment/success",
+            "cancel_url": "https://ghost-ai-qjag.onrender.com/payment/cancel"
         }
     }
 
