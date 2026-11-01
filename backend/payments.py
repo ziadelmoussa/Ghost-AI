@@ -6,8 +6,8 @@ PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID", "mock_client_id")
 PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET", "mock_client_secret")
 PAYPAL_API_BASE = os.getenv("PAYPAL_API_BASE", "https://api-m.sandbox.paypal.com")
 
-# Automatically uses Render in production and localhost during local testing
-BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
+# Dynamic frontend redirect fallback: points to Vercel in production and localhost:5173 locally
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 def get_paypal_access_token() -> str:
     """Authenticates with PayPal REST API to retrieve a short-lived bearer token."""
@@ -48,8 +48,9 @@ def create_paypal_order(amount: str, currency: str = "USD") -> dict:
         ],
         "application_context": {
             "locale": "en-US",
-            "return_url": f"{BACKEND_URL}/payment/success",
-            "cancel_url": f"{BACKEND_URL}/payment/cancel"
+            # Redirects directly back to the Vercel frontend so Safari/browsers load cleanly after checkout
+            "return_url": FRONTEND_URL,
+            "cancel_url": FRONTEND_URL
         }
     }
 
