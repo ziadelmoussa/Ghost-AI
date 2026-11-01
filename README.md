@@ -6,11 +6,11 @@ Ghost AI is an autonomous proxy application designed to process natural language
 Current conversational interfaces lack the capability to execute multi-step commercial transactions autonomously. Ghost AI bridges this gap by acting as an intermediary between unstructured user requests and strict third-party supplier logistics. The application parses complex requests, maintains session context, and executes mock commercial transactions.
 
 ## Live Application & Evaluation Guide
-The React client is deployed live, but it requires a local instance of the backend to process stateful tasks and payments. 
+You can run the application fully online using the live deployment. Please note that because the backend is hosted on Render's cloud infrastructure, it may take a brief moment to spin up and respond on initial load due to cold-start inactivity.
 
 - **Live Frontend:** https://ghost-ai-vvqd.vercel.app/
 
-**Important Evaluation Note:** To fully interact with the live frontend, you must start the FastAPI backend on your local machine. The deployed frontend is specifically configured to route API requests to `http://localhost:8000`.
+**Important Evaluation Note:** The live application runs fully online out-of-the-box. If you prefer a completely local development setup, you can also run the FastAPI backend and React frontend locally by following the instructions below.
 
 ## Architecture & Tech Stack
 The application utilizes a decoupled architecture, separating the client interface from a stateful transaction processing engine.
@@ -28,9 +28,9 @@ The application utilizes a decoupled architecture, separating the client interfa
 
 ---
 
-## Local Backend Setup
+## Local Backend Setup (Optional Alternative)
 
-To evaluate the application, please follow these steps to initialize the backend processing engine.
+If you prefer running the backend processing engine locally for development or evaluation, please follow these steps.
 
 ### Prerequisites
 - Python (3.9 or higher)
