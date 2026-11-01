@@ -226,8 +226,14 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
     };
 
     const handlePaymentClick = (msgIndex, link, orderId) => {
-        // Direct navigation to bypass popup blockers and safely send user to PayPal Sandbox
-        window.location.href = link;
+        // Open a blank tab synchronously to prevent popup blocking
+        const paypalWindow = window.open('about:blank', '_blank');
+
+        if (paypalWindow) {
+            paypalWindow.location.href = link;
+        } else {
+            window.location.href = link;
+        }
         
         setMessages((prev) => {
             const newMessages = [...prev];
@@ -248,6 +254,11 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
                 const status = await checkPaymentStatus(token);
                 if (status === 'paid') {
                     clearInterval(checkInterval);
+                    
+                    if (paypalWindow && !paypalWindow.closed) {
+                        paypalWindow.close();
+                    }
+
                     setMessages((prev) => {
                         const newMessages = [...prev];
                         if (newMessages[msgIndex]) {
