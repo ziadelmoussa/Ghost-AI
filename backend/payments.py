@@ -23,8 +23,8 @@ def get_paypal_access_token() -> str:
         return response.json().get("access_token")
     raise Exception(f"Failed to obtain PayPal access token: {response.text}")
 
-def create_paypal_order(amount: str, currency: str = "USD") -> dict:
-    """Generates a secure checkout order and returns the approval routing URLs."""
+def create_paypal_order(amount: str, currency: str = "USD", host_url: str = None) -> dict:
+    """Generates a secure checkout order and dynamically assigns return routes."""
     access_token = get_paypal_access_token()
     url = f"{PAYPAL_API_BASE}/v2/checkout/orders"
 
@@ -32,6 +32,15 @@ def create_paypal_order(amount: str, currency: str = "USD") -> dict:
         "Content-Type": "application/json",
         "Authorization": f"Bearer {access_token}"
     }
+
+    # If running locally, route PayPal back to localhost:8000, otherwise Render production
+    if host_url and ("localhost" in host_url or "127.0.0.1" in host_url):
+        base_backend = "http://localhost:8000"
+    else:
+        base_backend = "https://ghost-ai-qjag.onrender.com"
+
+    return_url = f"{base_backend}/payment/success"
+    cancel_url = f"{base_backend}/payment/cancel"
 
     payload = {
         "intent": "CAPTURE",
@@ -45,8 +54,8 @@ def create_paypal_order(amount: str, currency: str = "USD") -> dict:
         ],
         "application_context": {
             "locale": "en-US",
-            "return_url": "https://ghost-ai-qjag.onrender.com/payment/success",
-            "cancel_url": "https://ghost-ai-qjag.onrender.com/payment/cancel"
+            "return_url": return_url,
+            "cancel_url": cancel_url
         }
     }
 

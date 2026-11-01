@@ -227,7 +227,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
     };
 
     const handlePaymentClick = (msgIndex, link, orderId) => {
-        // Force open in a new tab using a hidden HTML link bypass to clear strict browser popup blockers
+        // Force open PayPal securely in a brand new browser tab
         Object.assign(document.createElement('a'), {
             target: '_blank',
             rel: 'noopener noreferrer',
@@ -241,16 +241,13 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
         });
 
         const checkInterval = setInterval(async () => {
-            const tokenMatch = link.match(/token=([^&]+)/);
-            const token = orderId || (tokenMatch ? tokenMatch[1] : null);
-
-            if (!token) {
+            if (!orderId) {
                 clearInterval(checkInterval);
                 return;
             }
 
             try {
-                const status = await checkPaymentStatus(token);
+                const status = await checkPaymentStatus(orderId);
                 if (status === 'paid') {
                     clearInterval(checkInterval);
                     setMessages((prev) => {
