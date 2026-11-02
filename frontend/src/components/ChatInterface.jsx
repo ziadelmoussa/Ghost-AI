@@ -264,6 +264,11 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
         }, 2500);
     };
 
+    // Resets iOS viewport scroll when virtual keyboard is dismissed
+    const handleInputBlur = () => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    };
+
     return (
         <div className="chat-container">
             <div className="chat-window">
@@ -363,6 +368,7 @@ export default function ChatInterface({ sessionId, updateChatTitle, initialMessa
                         type="text" 
                         value={input} 
                         onChange={(e) => setInput(e.target.value)} 
+                        onBlur={handleInputBlur}
                         placeholder={textUI.placeholder} 
                         className="chat-input" 
                         disabled={isLoading} 

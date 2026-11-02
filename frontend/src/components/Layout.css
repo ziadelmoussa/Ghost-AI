@@ -146,11 +146,11 @@
 }
 
 .top-header {
-    height: calc(60px + env(safe-area-inset-top)); 
-    padding: env(safe-area-inset-top) 20px 0 20px; /* Fixed shorthand order */
+    height: calc(64px + env(safe-area-inset-top)); 
+    padding: env(safe-area-inset-top) 16px 10px 16px;
     box-sizing: border-box;
     display: flex; 
-    align-items: center;
+    align-items: flex-end; /* Positions buttons safely below notch blur zone */
     justify-content: space-between; 
     background: var(--surface-bg);
     backdrop-filter: blur(25px);
@@ -190,7 +190,7 @@
     overflow-y: auto; 
     display: flex; 
     flex-direction: column; 
-    padding-top: calc(60px + env(safe-area-inset-top)); 
+    padding-top: calc(64px + env(safe-area-inset-top)); 
     padding-bottom: env(safe-area-inset-bottom);
 }
 
