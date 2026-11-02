@@ -1,6 +1,6 @@
 .app-layout {
     display: flex;
-    height: 100vh;
+    height: 100dvh; /* dvh handles dynamic iOS address bar height */
     width: 100vw;
     overflow: hidden;
     background: var(--bg-app);
@@ -16,18 +16,21 @@
     transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     display: flex;
     flex-direction: column;
-    z-index: 5;
+    z-index: 100; /* Sits above header on mobile so buttons are clickable */
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 .sidebar.closed { width: 0; border-right: none; }
 
 .sidebar-content {
     width: 280px;
-    padding: 20px;
+    /* Pushes sidebar items down safely below iOS notch */
+    padding: calc(16px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom)) 20px;
     display: flex;
     flex-direction: column;
     height: 100%;
+    box-sizing: border-box;
 }
 
 .sidebar-header {
@@ -143,11 +146,9 @@
 }
 
 .top-header {
-    height: calc(70px + env(safe-area-inset-top)); 
-    padding-top: env(safe-area-inset-top);
+    height: calc(60px + env(safe-area-inset-top)); 
+    padding: env(safe-area-inset-top) 20px 0 20px; /* Fixed shorthand order */
     box-sizing: border-box;
-    min-height: 70px; 
-    padding: 0 24px; 
     display: flex; 
     align-items: center;
     justify-content: space-between; 
@@ -189,13 +190,17 @@
     overflow-y: auto; 
     display: flex; 
     flex-direction: column; 
-    padding-top: calc(70px + env(safe-area-inset-top)); 
+    padding-top: calc(60px + env(safe-area-inset-top)); 
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 @media (max-width: 768px) {
     .sidebar {
-        position: absolute;
-        height: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        height: 100dvh;
         box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
     }
     .app-layout, .main-content {
